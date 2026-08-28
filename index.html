@@ -46,25 +46,34 @@
   <main class="w-full max-w-lg p-4 flex-1 flex flex-col gap-4">
 
     <!-- ================================================================= -->
-    <!-- 탭 1: 배변 기록 (직전 3끼 매칭 및 직접 입력) -->
+    <!-- 탭 1: 기록하기 (배변 / 식사 원클릭 모드 전환) -->
     <!-- ================================================================= -->
-    <section id="tab-bowel" class="tab-content flex flex-col gap-4">
-      <!-- 안내 카드 -->
-      <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-4 rounded-2xl shadow-md">
-        <h2 class="font-bold text-base flex items-center gap-2">
-          <i class="fa-solid fa-toilet"></i> 지금 장 상태는 어떤가요?
-        </h2>
-        <p class="text-xs text-amber-100 mt-1">
-          배가 아프거나 변을 본 후 기록하면 직전 3끼와 매칭하여 트러블 음식을 찾아냅니다.
-        </p>
+    <section id="tab-record" class="tab-content flex flex-col gap-4">
+      <!-- 상단 모드 전환 세그먼트 버튼 -->
+      <div class="bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs grid grid-cols-2 gap-1.5">
+        <button type="button" id="btnModeBowel" onclick="setRecordMode('bowel')" class="py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-amber-500 text-white shadow-sm">
+          <span>🚽 배변 기록</span>
+        </button>
+        <button type="button" id="btnModeMeal" onclick="setRecordMode('meal')" class="py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200">
+          <span>🍚 식사 기록</span>
+        </button>
       </div>
 
-      <!-- 배변 기록 폼 -->
+      <!-- 1) 배변 기록 폼 (섭취 식사 입력창 제거, 상태+시간+메모만 간결하게) -->
       <form id="bowelForm" onsubmit="handleSaveBowel(event)" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
-        <!-- 기록 일시 -->
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-4 rounded-xl shadow-xs">
+          <h2 class="font-bold text-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-toilet"></i> 지금 장 상태는 어떤가요?
+          </h2>
+          <p class="text-[11px] text-amber-100 mt-1">
+            배변 상태만 등록하시면 이전에 등록해 둔 식사 타임라인과 자동 연동되어 잠복기를 계산합니다.
+          </p>
+        </div>
+
+        <!-- 기록 일시 (현재 시간 자동 세팅) -->
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">
-            <i class="fa-regular fa-clock text-slate-400"></i> 발생 일시
+            <i class="fa-regular fa-clock text-slate-400"></i> 배변 발생 일시
           </label>
           <input type="datetime-local" id="bowelTime" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
         </div>
@@ -109,92 +118,9 @@
           </div>
         </div>
 
-        <!-- 직전 식사 입력 섹션 (기본 1끼 + 추가 버튼) -->
-        <div class="pt-2 border-t border-slate-100">
-          <div class="flex items-center justify-between mb-2">
-            <div>
-              <span class="text-xs font-bold text-slate-800">식사 내역 입력</span>
-              <p class="text-[11px] text-slate-500">직전 식사만 적고, 필요 시 이전 식사를 추가하세요</p>
-            </div>
-            <button type="button" onclick="autoFillPrevMeals()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
-              <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
-              <span>평소 식사 불러오기</span>
-            </button>
-          </div>
-
-          <div id="autoMatchNotice" class="hidden text-xs bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2 rounded-lg mb-2 flex items-center justify-between">
-            <span id="autoMatchText"></span>
-            <button type="button" onclick="dismissNotice()" class="text-amber-600 hover:text-amber-900 font-bold ml-2">✕</button>
-          </div>
-
-          <!-- 1끼 전 (기본 노출) -->
-          <div class="mb-2.5">
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <span class="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-bold">1</span>
-                <span>직전 식사 (1끼 전)</span>
-                <span class="text-rose-500 font-bold">*</span>
-              </label>
-              <span class="text-[10px] text-slate-400">가장 최근 먹은 음식</span>
-            </div>
-            <div class="relative flex items-center">
-              <input type="text" id="prevMeal1" required placeholder="예: 삶은계란, 아몬드" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none font-medium" />
-              <button type="button" onclick="clearInput('prevMeal1')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
-            </div>
-          </div>
-
-          <!-- 2끼 전 (기본 숨김, 추가 버튼으로 노출) -->
-          <div id="wrapperMeal2" class="hidden mb-2.5 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-medium text-slate-700 flex items-center gap-1">
-                <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-bold">2</span>
-                <span>2끼 전 식사</span>
-              </label>
-              <button type="button" onclick="removeMealSlot(2)" class="text-[11px] text-rose-500 hover:text-rose-700 font-medium">✕ 삭제</button>
-            </div>
-            <div class="relative flex items-center">
-              <input type="text" id="prevMeal2" placeholder="예: 순대국, 밥" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
-              <button type="button" onclick="clearInput('prevMeal2')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
-            </div>
-          </div>
-
-          <!-- 3끼 전 (기본 숨김, 추가 버튼으로 노출) -->
-          <div id="wrapperMeal3" class="hidden mb-2.5 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-medium text-slate-700 flex items-center gap-1">
-                <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-bold">3</span>
-                <span>3끼 전 식사</span>
-              </label>
-              <button type="button" onclick="removeMealSlot(3)" class="text-[11px] text-rose-500 hover:text-rose-700 font-medium">✕ 삭제</button>
-            </div>
-            <div class="relative flex items-center">
-              <input type="text" id="prevMeal3" placeholder="예: 토스트, 우유" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
-              <button type="button" onclick="clearInput('prevMeal3')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
-            </div>
-          </div>
-
-          <!-- 이전 식사 추가 버튼 -->
-          <div class="mb-2">
-            <button type="button" id="btnAddMealSlot" onclick="addNextMealSlot()" class="w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold border border-slate-200 flex items-center justify-center gap-1.5 transition">
-              <i class="fa-solid fa-plus text-slate-400"></i>
-              <span id="btnAddMealText">이전 식사도 추가하기 (2끼 전)</span>
-            </button>
-          </div>
-
-          <!-- 자주 먹은 음식 추천 태그 -->
-          <div class="mt-2.5" id="frequentTagsContainer">
-            <div class="text-[11px] text-slate-500 mb-1 flex items-center gap-1">
-              <i class="fa-solid fa-tags text-slate-400"></i> 클릭하여 1끼 전에 추가:
-            </div>
-            <div id="frequentTagsList" class="flex flex-wrap gap-1.5">
-              <span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>
-            </div>
-          </div>
-        </div>
-
         <!-- 증상 메모 -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">메모 (선택)</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">증상 메모 (선택)</label>
           <div class="relative flex items-center">
             <input type="text" id="bowelMemo" placeholder="예: 아침부터 아랫배 찌르는 느낌, 가스 많이 참" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
             <button type="button" onclick="clearInput('bowelMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
@@ -204,28 +130,22 @@
         <!-- 저장 버튼 -->
         <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-floppy-disk"></i>
-          <span>배변 및 직전 식사 기록 저장</span>
+          <span>배변 기록 저장</span>
         </button>
       </form>
-    </section>
 
+      <!-- 2) 식사 기록 폼 -->
+      <form id="mealForm" onsubmit="handleSaveMeal(event)" class="hidden bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 rounded-xl shadow-xs">
+          <h2 class="font-bold text-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-utensils"></i> 식사 기록 등록
+          </h2>
+          <p class="text-[11px] text-emerald-100 mt-1">
+            식사할 때마다 시간과 메뉴를 등록해두시면 배변 발생 시 자동으로 시간차가 계산됩니다.
+          </p>
+        </div>
 
-    <!-- ================================================================= -->
-    <!-- 탭 2: 평소 식사 기록 -->
-    <!-- ================================================================= -->
-    <section id="tab-meal" class="tab-content hidden flex flex-col gap-4">
-      <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 rounded-2xl shadow-md">
-        <h2 class="font-bold text-base flex items-center gap-2">
-          <i class="fa-solid fa-utensils"></i> 평소 식사 간편 등록
-        </h2>
-        <p class="text-xs text-emerald-100 mt-1">
-          식사할 때마다 미리 등록해두면, 배가 아플 때 버튼 한 번으로 직전 3끼를 자동 매칭할 수 있습니다.
-        </p>
-      </div>
-
-      <!-- 식사 입력 폼 -->
-      <form id="mealForm" onsubmit="handleSaveMeal(event)" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
-        <!-- 식사 일시 -->
+        <!-- 식사 일시 (현재 시간 자동 세팅) -->
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">
             <i class="fa-regular fa-clock text-slate-400"></i> 식사 일시
@@ -270,17 +190,6 @@
           <span>식사 기록 등록</span>
         </button>
       </form>
-
-      <!-- 최근 등록된 식사 히스토리 (최근 5건) -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        <h3 class="font-bold text-xs text-slate-700 mb-3 flex items-center justify-between">
-          <span>최근 등록한 식사</span>
-          <span class="text-[11px] text-slate-400 font-normal">최근 5건</span>
-        </h3>
-        <div id="recentMealList" class="flex flex-col gap-2">
-          <!-- JS 동적 렌더링 -->
-        </div>
-      </div>
     </section>
 
 
@@ -479,45 +388,8 @@
             </label>
           </div>
         </div>
-        <div class="pt-2 border-t border-slate-100 flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <label class="text-xs font-bold text-slate-700">식사 내역</label>
-            <span class="text-[10px] text-slate-400">필요 시 이전 식사 추가/삭제</span>
-          </div>
-          <div>
-            <label class="block text-[11px] text-orange-600 font-medium mb-1">[1끼 전] 직전 식사</label>
-            <div class="relative flex items-center">
-              <input type="text" id="editPrevMeal1" placeholder="예: 삶은계란, 아몬드" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-              <button type="button" onclick="clearInput('editPrevMeal1')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
-            </div>
-          </div>
-          <div id="wrapperEditMeal2" class="hidden bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-[11px] text-slate-600 font-medium">[2끼 전]</label>
-              <button type="button" onclick="removeEditMealSlot(2)" class="text-[10px] text-rose-500 hover:text-rose-700 font-medium">✕ 삭제</button>
-            </div>
-            <div class="relative flex items-center">
-              <input type="text" id="editPrevMeal2" placeholder="예: 순대국, 밥" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
-              <button type="button" onclick="clearInput('editPrevMeal2')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
-            </div>
-          </div>
-          <div id="wrapperEditMeal3" class="hidden bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-[11px] text-slate-600 font-medium">[3끼 전]</label>
-              <button type="button" onclick="removeEditMealSlot(3)" class="text-[10px] text-rose-500 hover:text-rose-700 font-medium">✕ 삭제</button>
-            </div>
-            <div class="relative flex items-center">
-              <input type="text" id="editPrevMeal3" placeholder="예: 토스트, 우유" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
-              <button type="button" onclick="clearInput('editPrevMeal3')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
-            </div>
-          </div>
-          <button type="button" id="btnEditAddMealSlot" onclick="addNextEditMealSlot()" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium border border-slate-200 flex items-center justify-center gap-1 transition">
-            <i class="fa-solid fa-plus text-slate-400"></i>
-            <span id="btnEditAddMealText">이전 식사 추가하기 (2끼 전)</span>
-          </button>
-        </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">메모 (선택)</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">증상 메모 (선택)</label>
           <div class="relative flex items-center">
             <input type="text" id="editBowelMemo" placeholder="증상 또는 특이사항 메모" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
             <button type="button" onclick="clearInput('editBowelMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
@@ -531,26 +403,21 @@
     </div>
   </div>
 
-  <!-- 하단 고정 탭 네비게이션 -->
-  <nav class="fixed bottom-0 w-full max-w-lg bg-white border-t border-slate-200 z-30 shadow-lg flex justify-around py-2 px-1">
-    <button onclick="switchTab('tab-bowel')" id="nav-bowel" class="nav-btn flex-1 flex flex-col items-center gap-1 text-amber-600 py-1 transition">
-      <i class="fa-solid fa-toilet text-lg"></i>
-      <span class="text-[11px] font-bold">배변 기록</span>
+  <!-- 하단 고정 탭 네비게이션 (3개로 간소화) -->
+  <nav class="fixed bottom-0 w-full max-w-lg bg-white border-t border-slate-200 z-30 shadow-lg flex justify-around py-2 px-2">
+    <button onclick="switchTab('tab-record')" id="nav-record" class="nav-btn flex-1 flex flex-col items-center gap-1 text-amber-600 font-bold py-1 transition">
+      <i class="fa-solid fa-pen-to-square text-lg"></i>
+      <span class="text-[11px]">기록하기</span>
     </button>
 
-    <button onclick="switchTab('tab-meal')" id="nav-meal" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 transition">
-      <i class="fa-solid fa-utensils text-lg"></i>
-      <span class="text-[11px] font-medium">식사 기록</span>
-    </button>
-
-    <button onclick="switchTab('tab-analysis')" id="nav-analysis" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 transition">
+    <button onclick="switchTab('tab-analysis')" id="nav-analysis" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-medium py-1 transition">
       <i class="fa-solid fa-chart-pie text-lg"></i>
-      <span class="text-[11px] font-medium">트러블 분석</span>
+      <span class="text-[11px]">트러블 분석</span>
     </button>
 
-    <button onclick="switchTab('tab-manage')" id="nav-manage" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 transition">
+    <button onclick="switchTab('tab-manage')" id="nav-manage" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-medium py-1 transition">
       <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-      <span class="text-[11px] font-medium">히스토리</span>
+      <span class="text-[11px]">타임라인</span>
     </button>
   </nav>
 
@@ -636,6 +503,32 @@
       localStorage.setItem(STORAGE_KEY_BOWELS, JSON.stringify(data));
     }
 
+    let currentRecordMode = 'bowel';
+
+    function setRecordMode(mode) {
+      currentRecordMode = mode;
+      const bowelForm = document.getElementById('bowelForm');
+      const mealForm = document.getElementById('mealForm');
+      const btnBowel = document.getElementById('btnModeBowel');
+      const btnMeal = document.getElementById('btnModeMeal');
+
+      if (mode === 'bowel') {
+        bowelForm.classList.remove('hidden');
+        mealForm.classList.add('hidden');
+        btnBowel.className = 'py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-amber-500 text-white shadow-sm';
+        btnMeal.className = 'py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        document.getElementById('bowelTime').value = getNowLocalString();
+      } else {
+        mealForm.classList.remove('hidden');
+        bowelForm.classList.add('hidden');
+        btnMeal.className = 'py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-emerald-600 text-white shadow-sm';
+        btnBowel.className = 'py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        document.getElementById('mealTime').value = getNowLocalString();
+        renderFrequentTags();
+      }
+      refreshAllClearBtns();
+    }
+
     // 탭 전환
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -649,8 +542,7 @@
       });
 
       const navMap = {
-        'tab-bowel': 'nav-bowel',
-        'tab-meal': 'nav-meal',
+        'tab-record': 'nav-record',
         'tab-analysis': 'nav-analysis',
         'tab-manage': 'nav-manage'
       };
@@ -662,11 +554,11 @@
 
       if (tabId === 'tab-analysis') renderAnalysis();
       if (tabId === 'tab-manage') renderTimeline();
-      if (tabId === 'tab-meal') {
-        renderRecentMeals();
+      if (tabId === 'tab-record') {
+        if (currentRecordMode === 'bowel') document.getElementById('bowelTime').value = getNowLocalString();
+        else document.getElementById('mealTime').value = getNowLocalString();
         renderFrequentTags();
       }
-      if (tabId === 'tab-bowel') renderFrequentTags();
       refreshAllClearBtns();
     }
 
@@ -680,71 +572,23 @@
     }
 
     // =================================================================
-    // 1. 배변 기록 로직 (기본 1끼 입력 + 필요 시 이전 끼니 추가)
+    // 1. 배변 기록 로직 (상태 + 현재시간 + 증상메모만 간결하게 저장)
     // =================================================================
-    function addNextMealSlot() {
-      const wrap2 = document.getElementById('wrapperMeal2');
-      const wrap3 = document.getElementById('wrapperMeal3');
-      const btn = document.getElementById('btnAddMealSlot');
-      const btnText = document.getElementById('btnAddMealText');
-
-      if (wrap2.classList.contains('hidden')) {
-        wrap2.classList.remove('hidden');
-        document.getElementById('prevMeal2').focus();
-        btnText.innerText = '이전 식사도 추가하기 (3끼 전)';
-      } else if (wrap3.classList.contains('hidden')) {
-        wrap3.classList.remove('hidden');
-        document.getElementById('prevMeal3').focus();
-        btn.classList.add('hidden');
-      }
-    }
-
-    function removeMealSlot(slot) {
-      const wrap = document.getElementById('wrapperMeal' + slot);
-      const input = document.getElementById('prevMeal' + slot);
-      const btn = document.getElementById('btnAddMealSlot');
-      const btnText = document.getElementById('btnAddMealText');
-
-      input.value = '';
-      wrap.classList.add('hidden');
-      btn.classList.remove('hidden');
-
-      const wrap2 = document.getElementById('wrapperMeal2');
-      if (wrap2.classList.contains('hidden')) {
-        btnText.innerText = '이전 식사도 추가하기 (2끼 전)';
-      } else {
-        btnText.innerText = '이전 식사도 추가하기 (3끼 전)';
-      }
-    }
-
     function handleSaveBowel(e) {
       e.preventDefault();
-      const time = document.getElementById('bowelTime').value;
       const statusInput = document.querySelector('input[name="bowelStatus"]:checked');
       if (!statusInput) {
         alert('배변 상태를 선택해주세요.');
         return;
       }
+      const time = document.getElementById('bowelTime').value;
       const status = statusInput.value;
-      const meal1 = parseFoodKeywords(document.getElementById('prevMeal1').value);
-      const meal2 = parseFoodKeywords(document.getElementById('prevMeal2').value);
-      const meal3 = parseFoodKeywords(document.getElementById('prevMeal3').value);
       const memo = document.getElementById('bowelMemo').value.trim();
-
-      if (meal1.length === 0) {
-        alert('직전 식사(1끼 전)를 입력해주세요.');
-        return;
-      }
 
       const newBowel = {
         id: 'bowel_' + Date.now(),
         timestamp: time,
         status: status,
-        prevMeals: {
-          meal1: meal1,
-          meal2: meal2,
-          meal3: meal3
-        },
         memo: memo
       };
 
@@ -755,14 +599,9 @@
 
       alert(`[${status}] 배변 기록이 저장되었습니다!`);
 
-      // 폼 초기화 및 추가 슬롯 숨김
+      // 폼 초기화 및 현재 시각 갱신
       document.getElementById('bowelForm').reset();
-      document.getElementById('wrapperMeal2').classList.add('hidden');
-      document.getElementById('wrapperMeal3').classList.add('hidden');
-      document.getElementById('btnAddMealSlot').classList.remove('hidden');
-      document.getElementById('btnAddMealText').innerText = '이전 식사도 추가하기 (2끼 전)';
       document.getElementById('bowelTime').value = getNowLocalString();
-      dismissNotice();
       renderAll();
       refreshAllClearBtns();
       switchTab('tab-analysis');
@@ -774,54 +613,6 @@
         return `${mins}분 전`;
       }
       return `${hours.toFixed(1)}시간 전`;
-    }
-
-    // 자동 불러오기: 현재 설정된 배변 시각 이전의 최근 3개 식사 매칭 및 시간차 계산
-    function autoFillPrevMeals() {
-      const bowelTimeStr = document.getElementById('bowelTime').value;
-      const bowelDate = new Date(bowelTimeStr);
-
-      const meals = getMeals();
-      const prevMeals = meals
-        .filter(m => new Date(m.timestamp) <= bowelDate)
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-      if (prevMeals.length === 0) {
-        alert('해당 배변 시간 이전에 등록된 식사 기록이 없습니다. 평소 식사 기록 탭에서 먼저 등록하거나 아래에 직접 입력해주세요.');
-        return;
-      }
-
-      const summaries = [];
-      if (prevMeals[0]) {
-        const h0 = Math.max(0.1, (bowelDate - new Date(prevMeals[0].timestamp)) / 3600000);
-        document.getElementById('prevMeal1').value = prevMeals[0].foods.join(', ');
-        summaries.push(`1끼(${formatElapsedHoursText(h0)})`);
-      }
-      if (prevMeals[1]) {
-        const h1 = Math.max(0.1, (bowelDate - new Date(prevMeals[1].timestamp)) / 3600000);
-        document.getElementById('wrapperMeal2').classList.remove('hidden');
-        document.getElementById('prevMeal2').value = prevMeals[1].foods.join(', ');
-        document.getElementById('btnAddMealText').innerText = '이전 식사도 추가하기 (3끼 전)';
-        summaries.push(`2끼(${formatElapsedHoursText(h1)})`);
-      }
-      if (prevMeals[2]) {
-        const h2 = Math.max(0.1, (bowelDate - new Date(prevMeals[2].timestamp)) / 3600000);
-        document.getElementById('wrapperMeal3').classList.remove('hidden');
-        document.getElementById('prevMeal3').value = prevMeals[2].foods.join(', ');
-        document.getElementById('btnAddMealSlot').classList.add('hidden');
-        summaries.push(`3끼(${formatElapsedHoursText(h2)})`);
-      }
-
-      const notice = document.getElementById('autoMatchNotice');
-      const noticeText = document.getElementById('autoMatchText');
-      noticeText.innerHTML = `<i class="fa-solid fa-circle-check text-amber-600 mr-1"></i> 이전 식사 <strong>${Math.min(3, prevMeals.length)}끼</strong> 불러옴 (${summaries.join(' / ')}) ⏱️ 시간차 자동 분석`;
-      notice.classList.remove('hidden');
-      refreshAllClearBtns();
-    }
-
-    function dismissNotice() {
-      const notice = document.getElementById('autoMatchNotice');
-      if (notice) notice.classList.add('hidden');
     }
 
     // =================================================================
@@ -857,12 +648,12 @@
       document.getElementById('mealTime').value = getNowLocalString();
 
       refreshAllClearBtns();
-      renderRecentMeals();
-      renderFrequentTags();
+      renderAll();
     }
 
     function renderRecentMeals() {
       const container = document.getElementById('recentMealList');
+      if (!container) return;
       const meals = getMeals().slice(0, 5);
       if (meals.length === 0) {
         container.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">아직 등록된 식사 기록이 없습니다.</div>';
@@ -1243,43 +1034,63 @@
                 </div>
               </div>
 
-              <!-- 섭취 식사 내역 (실제 입력된 끼니 및 시간차 표시) -->
+              <!-- 섭취 식사 내역 (배변 시점 이전 36시간 식사 타임라인 자동 매칭 표시) -->
               ${(() => {
                 const bDate = new Date(item.timestamp);
                 const allMeals = getMeals();
                 
-                // 타임라인 등록 식사 매칭
+                // 배변 시점 이전 36시간 이내의 식사 목록
                 const matchedMeals = allMeals.filter(m => {
                   const mDate = new Date(m.timestamp);
                   const diffMs = bDate - mDate;
                   return diffMs >= 0 && diffMs <= (36 * 3600 * 1000);
                 });
 
-                if (prev2.length === 0 && prev3.length === 0) {
-                  let timeBadge = '직전 식사';
-                  if (matchedMeals[0] && prev1.some(f => matchedMeals[0].foods.includes(f))) {
-                    const elapsedH = Math.max(0.1, (bDate - new Date(matchedMeals[0].timestamp)) / 3600000);
-                    timeBadge = `${formatElapsedHoursText(elapsedH)} 섭취`;
+                if (matchedMeals.length === 0) {
+                  const legacy1 = item.prevMeals?.meal1 || [];
+                  if (legacy1.length > 0) {
+                    return `
+                      <div class="mt-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+                        <span class="text-[11px] font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded shrink-0">직전 식사</span>
+                        <span class="text-xs font-semibold text-slate-800">${legacy1.join(', ')}</span>
+                      </div>
+                    `;
                   }
                   return `
-                    <div class="mt-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-                      <span class="text-[11px] font-bold text-orange-700 bg-orange-100/80 px-2 py-0.5 rounded shrink-0">${timeBadge}</span>
-                      <span class="text-xs font-semibold text-slate-800">${prev1.length > 0 ? prev1.join(', ') : '식사 기록 없음'}</span>
-                    </div>
-                  `;
-                } else {
-                  return `
-                    <div class="mt-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex flex-col gap-1.5">
-                      <div class="font-semibold text-slate-500 text-[11px] flex items-center justify-between">
-                        <span>섭취 식사 내역:</span>
-                        <span class="text-[10px] text-slate-400 font-normal">⏱️ 배변 이전 시간차 순차 분석</span>
-                      </div>
-                      ${prev1.length > 0 ? `<div class="text-slate-800 text-xs font-medium flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">1</span> ${prev1.join(', ')} <span class="text-[10px] text-slate-400 font-normal">(${matchedMeals[0] ? formatElapsedHoursText(Math.max(0.1, (bDate - new Date(matchedMeals[0].timestamp)) / 3600000)) : '직전 식사'})</span></div>` : ''}
-                      ${prev2.length > 0 ? `<div class="text-slate-700 text-xs flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-bold">2</span> ${prev2.join(', ')} <span class="text-[10px] text-purple-600 font-normal">(${matchedMeals[1] ? formatElapsedHoursText(Math.max(0.1, (bDate - new Date(matchedMeals[1].timestamp)) / 3600000)) : '지연성 잠복기 구간'})</span></div>` : ''}
-                      ${prev3.length > 0 ? `<div class="text-slate-700 text-xs flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-bold">3</span> ${prev3.join(', ')} <span class="text-[10px] text-slate-400 font-normal">(${matchedMeals[2] ? formatElapsedHoursText(Math.max(0.1, (bDate - new Date(matchedMeals[2].timestamp)) / 3600000)) : '소화 지연 구간'})</span></div>` : ''}
+                    <div class="mt-2 text-[11px] text-slate-400 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                      ⏱️ 직전 36시간 내 등록된 식사 없음
                     </div>
                   `;
                 }
+
+                return `
+                  <div class="mt-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex flex-col gap-1.5">
+                    <div class="font-semibold text-slate-500 text-[11px] flex items-center justify-between">
+                      <span>⏱️ 연동 식사 타임라인 (${matchedMeals.length}끼):</span>
+                      <span class="text-[10px] text-amber-600 font-normal">시간차 자동 계산</span>
+                    </div>
+                    ${matchedMeals.map((m, mIdx) => {
+                      const elapsedH = Math.max(0.1, (bDate - new Date(m.timestamp)) / 3600000);
+                      const isAcute = elapsedH <= 4.0;
+                      const isDelayed = elapsedH > 4.0 && elapsedH <= 18.0;
+                      const badgeClass = isAcute ? 'bg-orange-100 text-orange-700' : isDelayed ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700';
+                      const badgeLabel = isAcute ? '⚡급성' : isDelayed ? '⏳잠복기' : '🔄소화지연';
+
+                      return `
+                        <div class="text-slate-800 text-xs flex items-center justify-between gap-1">
+                          <div class="flex items-center gap-1.5">
+                            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-bold">${mIdx + 1}</span>
+                            <span class="font-medium">${m.foods.join(', ')}</span>
+                          </div>
+                          <div class="flex items-center gap-1">
+                            <span class="text-[10px] text-slate-400 font-normal">${formatElapsedHoursText(elapsedH)}</span>
+                            <span class="text-[9px] px-1.5 py-0.2 rounded font-bold ${badgeClass}">${badgeLabel}</span>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                `;
               })()}
 
               ${item.memo ? `<div class="text-xs text-slate-500 mt-2">📝 ${item.memo}</div>` : ''}
@@ -1350,41 +1161,6 @@
     // =================================================================
     // 배변 기록 수정 모달 로직
     // =================================================================
-    function addNextEditMealSlot() {
-      const wrap2 = document.getElementById('wrapperEditMeal2');
-      const wrap3 = document.getElementById('wrapperEditMeal3');
-      const btn = document.getElementById('btnEditAddMealSlot');
-      const btnText = document.getElementById('btnEditAddMealText');
-
-      if (wrap2.classList.contains('hidden')) {
-        wrap2.classList.remove('hidden');
-        document.getElementById('editPrevMeal2').focus();
-        btnText.innerText = '이전 식사 추가하기 (3끼 전)';
-      } else if (wrap3.classList.contains('hidden')) {
-        wrap3.classList.remove('hidden');
-        document.getElementById('editPrevMeal3').focus();
-        btn.classList.add('hidden');
-      }
-    }
-
-    function removeEditMealSlot(slot) {
-      const wrap = document.getElementById('wrapperEditMeal' + slot);
-      const input = document.getElementById('editPrevMeal' + slot);
-      const btn = document.getElementById('btnEditAddMealSlot');
-      const btnText = document.getElementById('btnEditAddMealText');
-
-      input.value = '';
-      wrap.classList.add('hidden');
-      btn.classList.remove('hidden');
-
-      const wrap2 = document.getElementById('wrapperEditMeal2');
-      if (wrap2.classList.contains('hidden')) {
-        btnText.innerText = '이전 식사 추가하기 (2끼 전)';
-      } else {
-        btnText.innerText = '이전 식사 추가하기 (3끼 전)';
-      }
-    }
-
     function openEditBowelModal(id) {
       const bowel = getBowels().find(b => b.id === id);
       if (!bowel) return;
@@ -1393,37 +1169,6 @@
       
       const radio = document.querySelector(`input[name="editBowelStatus"][value="${bowel.status}"]`);
       if (radio) radio.checked = true;
-
-      const p1 = bowel.prevMeals?.meal1 || [];
-      const p2 = bowel.prevMeals?.meal2 || [];
-      const p3 = bowel.prevMeals?.meal3 || [];
-
-      document.getElementById('editPrevMeal1').value = p1.join(', ');
-
-      const wrap2 = document.getElementById('wrapperEditMeal2');
-      const wrap3 = document.getElementById('wrapperEditMeal3');
-      const btn = document.getElementById('btnEditAddMealSlot');
-      const btnText = document.getElementById('btnEditAddMealText');
-
-      if (p2.length > 0) {
-        wrap2.classList.remove('hidden');
-        document.getElementById('editPrevMeal2').value = p2.join(', ');
-        btnText.innerText = '이전 식사 추가하기 (3끼 전)';
-      } else {
-        wrap2.classList.add('hidden');
-        document.getElementById('editPrevMeal2').value = '';
-        btnText.innerText = '이전 식사 추가하기 (2끼 전)';
-      }
-
-      if (p3.length > 0) {
-        wrap3.classList.remove('hidden');
-        document.getElementById('editPrevMeal3').value = p3.join(', ');
-        btn.classList.add('hidden');
-      } else {
-        wrap3.classList.add('hidden');
-        document.getElementById('editPrevMeal3').value = '';
-        btn.classList.remove('hidden');
-      }
 
       document.getElementById('editBowelMemo').value = bowel.memo || '';
       refreshAllClearBtns();
@@ -1444,9 +1189,6 @@
         return;
       }
       const status = statusInput.value;
-      const meal1 = parseFoodKeywords(document.getElementById('editPrevMeal1').value);
-      const meal2 = parseFoodKeywords(document.getElementById('editPrevMeal2').value);
-      const meal3 = parseFoodKeywords(document.getElementById('editPrevMeal3').value);
       const memo = document.getElementById('editBowelMemo').value.trim();
 
       const bowels = getBowels();
@@ -1454,11 +1196,6 @@
       if (idx !== -1) {
         bowels[idx].timestamp = time;
         bowels[idx].status = status;
-        bowels[idx].prevMeals = {
-          meal1: meal1,
-          meal2: meal2,
-          meal3: meal3
-        };
         bowels[idx].memo = memo;
         bowels.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         saveBowels(bowels);
