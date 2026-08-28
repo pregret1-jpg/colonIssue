@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>장이슈 (Jang-Issue) - 식사 & 배변 트러블 추적기</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* Mobile-friendly tap highlight removal */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", Roboto, "Noto Sans KR", sans-serif;
+    }
+    .badge-tag {
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+    }
+    .badge-tag:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col items-center pb-20">
+
+  <!-- 상단 헤더 -->
+  <header class="w-full max-w-lg bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🩺</span>
+        <div>
+          <h1 class="font-bold text-lg text-slate-900 leading-tight">장이슈 (Jang-Issue)</h1>
+          <p class="text-xs text-slate-500">식사 & 배변 트러블 원인 추적기</p>
+        </div>
+      </div>
+      <button onclick="switchTab('tab-manage')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg font-medium border border-slate-300 flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-gear text-slate-500"></i>
+        <span>관리/백업</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 메인 컨테이너 -->
+  <main class="w-full max-w-lg p-4 flex-1 flex flex-col gap-4">
+
+    <!-- ================================================================= -->
+    <!-- 탭 1: 배변 기록 (직전 3끼 매칭 및 직접 입력) -->
+    <!-- ================================================================= -->
+    <section id="tab-bowel" class="tab-content flex flex-col gap-4">
+      <!-- 안내 카드 -->
+      <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-4 rounded-2xl shadow-md">
+        <h2 class="font-bold text-base flex items-center gap-2">
+          <i class="fa-solid fa-toilet"></i> 지금 장 상태는 어떤가요?
+        </h2>
+        <p class="text-xs text-amber-100 mt-1">
+          배가 아프거나 변을 본 후 기록하면 직전 3끼와 매칭하여 트러블 음식을 찾아냅니다.
+        </p>
+      </div>
+
+      <!-- 배변 기록 폼 -->
+      <form id="bowelForm" onsubmit="handleSaveBowel(event)" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+        <!-- 기록 일시 -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+            <i class="fa-regular fa-clock text-slate-400"></i> 발생 일시
+          </label>
+          <input type="datetime-local" id="bowelTime" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+        </div>
+
+        <!-- 배변 상태 선택 -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-2">
+            배변 상태 <span class="text-rose-500 font-bold">*</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer border-2 border-rose-200 hover:border-rose-400 bg-rose-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
+              <input type="radio" name="bowelStatus" value="설사" required class="w-4 h-4 text-rose-600 focus:ring-rose-500" />
+              <div>
+                <div class="font-bold text-sm text-rose-700 flex items-center gap-1">🚨 설사</div>
+                <div class="text-[11px] text-rose-500">물설사 / 급박변</div>
+              </div>
+            </label>
+
+            <label class="cursor-pointer border-2 border-amber-200 hover:border-amber-400 bg-amber-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
+              <input type="radio" name="bowelStatus" value="묽은변" class="w-4 h-4 text-amber-600 focus:ring-amber-500" />
+              <div>
+                <div class="font-bold text-sm text-amber-700 flex items-center gap-1">💧 묽은변</div>
+                <div class="text-[11px] text-amber-600">진흙변 / 복통 동반</div>
+              </div>
+            </label>
+
+            <label class="cursor-pointer border-2 border-emerald-200 hover:border-emerald-400 bg-emerald-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
+              <input type="radio" name="bowelStatus" value="된똥" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500" />
+              <div>
+                <div class="font-bold text-sm text-emerald-700 flex items-center gap-1">✨ 황금된똥</div>
+                <div class="text-[11px] text-emerald-600">바나나변 / 쾌변</div>
+              </div>
+            </label>
+
+            <label class="cursor-pointer border-2 border-slate-200 hover:border-slate-400 bg-slate-50 p-3 rounded-xl flex items-center gap-2.5 transition">
+              <input type="radio" name="bowelStatus" value="단단한변" class="w-4 h-4 text-slate-600 focus:ring-slate-500" />
+              <div>
+                <div class="font-bold text-sm text-slate-700 flex items-center gap-1">🧱 단단한변</div>
+                <div class="text-[11px] text-slate-500">토끼똥 / 변비</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 직전 3끼 입력 섹션 -->
+        <div class="pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <span class="text-xs font-bold text-slate-800">이전 3끼 식사</span>
+              <p class="text-[11px] text-slate-500">직접 입력하거나 평소 기록에서 불러오세요</p>
+            </div>
+            <!-- 자동 매칭 버튼 -->
+            <button type="button" onclick="autoFillPrevMeals()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
+              <span>최근 3끼 자동 불러오기</span>
+            </button>
+          </div>
+
+          <div id="autoMatchNotice" class="hidden text-xs bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2 rounded-lg mb-2 flex items-center justify-between">
+            <span id="autoMatchText"></span>
+            <button type="button" onclick="dismissNotice()" class="text-amber-600 hover:text-amber-900 font-bold ml-2">✕</button>
+          </div>
+
+          <!-- 1끼 전 -->
+          <div class="mb-2.5">
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-medium text-slate-700 flex items-center gap-1">
+                <span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">1</span>
+                <span>직전 식사 (1끼 전)</span>
+              </label>
+              <span class="text-[10px] text-slate-400">가장 최근 먹은 음식</span>
+            </div>
+            <input type="text" id="prevMeal1" placeholder="예: 짬뽕, 탕수육, 단무지" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+          </div>
+
+          <!-- 2끼 전 -->
+          <div class="mb-2.5">
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-medium text-slate-700 flex items-center gap-1">
+                <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-bold">2</span>
+                <span>2끼 전 식사</span>
+              </label>
+              <span class="text-[10px] text-slate-400">그 전 식사</span>
+            </div>
+            <input type="text" id="prevMeal2" placeholder="예: 아이스 카페라떼, 샌드위치" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+          </div>
+
+          <!-- 3끼 전 -->
+          <div class="mb-1">
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-medium text-slate-700 flex items-center gap-1">
+                <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-bold">3</span>
+                <span>3끼 전 식사</span>
+              </label>
+              <span class="text-[10px] text-slate-400">그 전전 식사</span>
+            </div>
+            <input type="text" id="prevMeal3" placeholder="예: 김치찌개, 백반, 계란말이" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+          </div>
+
+          <!-- 자주 먹은 음식 추천 태그 -->
+          <div class="mt-2.5" id="frequentTagsContainer">
+            <div class="text-[11px] text-slate-500 mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-tags text-slate-400"></i> 클릭하여 1끼 전에 추가:
+            </div>
+            <div id="frequentTagsList" class="flex flex-wrap gap-1.5">
+              <span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 증상 메모 -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">메모 (선택)</label>
+          <input type="text" id="bowelMemo" placeholder="예: 아침부터 아랫배 찌르는 느낌, 가스 많이 참" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+        </div>
+
+        <!-- 저장 버튼 -->
+        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>배변 및 직전 식사 기록 저장</span>
+        </button>
+      </form>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- 탭 2: 평소 식사 기록 -->
+    <!-- ================================================================= -->
+    <section id="tab-meal" class="tab-content hidden flex flex-col gap-4">
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 rounded-2xl shadow-md">
+        <h2 class="font-bold text-base flex items-center gap-2">
+          <i class="fa-solid fa-utensils"></i> 평소 식사 간편 등록
+        </h2>
+        <p class="text-xs text-emerald-100 mt-1">
+          식사할 때마다 미리 등록해두면, 배가 아플 때 버튼 한 번으로 직전 3끼를 자동 매칭할 수 있습니다.
+        </p>
+      </div>
+
+      <!-- 식사 입력 폼 -->
+      <form id="mealForm" onsubmit="handleSaveMeal(event)" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+        <!-- 식사 일시 -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+            <i class="fa-regular fa-clock text-slate-400"></i> 식사 일시
+          </label>
+          <input type="datetime-local" id="mealTime" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+        </div>
+
+        <!-- 음식명 입력 -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+            음식 명칭 <span class="text-rose-500 font-bold">*</span> (쉼표로 구분)
+          </label>
+          <input type="text" id="mealFoods" required placeholder="예: 삼겹살, 비빔냉면, 콜라" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+          <p class="text-[11px] text-slate-400 mt-1">여러 메뉴를 함께 드셨다면 쉼표(,)로 구분해 적어주세요.</p>
+        </div>
+
+        <!-- 식사 메모 -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">메모 (선택)</label>
+          <input type="text" id="mealMemo" placeholder="예: 회사 점심, 조금 맵게 먹음" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+        </div>
+
+        <!-- 등록 버튼 -->
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-plus"></i>
+          <span>식사 기록 등록</span>
+        </button>
+      </form>
+
+      <!-- 최근 등록된 식사 히스토리 (최근 5건) -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="font-bold text-xs text-slate-700 mb-3 flex items-center justify-between">
+          <span>최근 등록한 식사</span>
+          <span class="text-[11px] text-slate-400 font-normal">최근 5건</span>
+        </h3>
+        <div id="recentMealList" class="flex flex-col gap-2">
+          <!-- JS 동적 렌더링 -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- 탭 3: 트러블 원인 분석 (통계 & 의심 음식 랭킹) -->
+    <!-- ================================================================= -->
+    <section id="tab-analysis" class="tab-content hidden flex flex-col gap-4">
+      <!-- 통계 개요 카드 -->
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
+          <div class="text-[11px] text-slate-500">배변 기록</div>
+          <div id="statTotalBowels" class="text-xl font-bold text-slate-800">0회</div>
+        </div>
+        <div class="bg-white p-3 rounded-2xl border border-rose-200 text-center shadow-sm">
+          <div class="text-[11px] text-rose-600 font-medium">🚨 설사/묽은변</div>
+          <div id="statTroubleBowels" class="text-xl font-bold text-rose-600">0회</div>
+        </div>
+        <div class="bg-white p-3 rounded-2xl border border-emerald-200 text-center shadow-sm">
+          <div class="text-[11px] text-emerald-600 font-medium">✨ 된똥/쾌변</div>
+          <div id="statGoodBowels" class="text-xl font-bold text-emerald-600">0회</div>
+        </div>
+      </div>
+
+      <!-- 의심 음식 랭킹 (설사 유발) -->
+      <div class="bg-white p-4 rounded-2xl border border-rose-200 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+            <span class="text-rose-600 text-base">⚠️</span> 장 트러블 유발 의심 음식 TOP
+          </h3>
+          <span class="text-[10px] text-rose-500 font-medium bg-rose-50 px-2 py-0.5 rounded-full">설사/묽은변 직전</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-3">
+          설사하기 전 3끼 식사에 자주 등장한 순서대로 위험도를 분석했습니다.
+        </p>
+
+        <div id="suspectFoodList" class="flex flex-col gap-2.5">
+          <!-- JS 렌더링 -->
+        </div>
+      </div>
+
+      <!-- 안전 음식 (된똥일 때 자주 먹음) -->
+      <div class="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+            <span class="text-emerald-600 text-base">🥦</span> 장에 안전했던 쾌변 음식 TOP
+          </h3>
+          <span class="text-[10px] text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full">황금변 직전</span>
+        </div>
+        <div id="safeFoodList" class="flex flex-col gap-2">
+          <!-- JS 렌더링 -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- 탭 4: 타임라인 & 데이터 관리 -->
+    <!-- ================================================================= -->
+    <section id="tab-manage" class="tab-content hidden flex flex-col gap-4">
+      <!-- 데이터 백업/복구 카드 -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3">
+        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+          <i class="fa-solid fa-database text-slate-500"></i> 데이터 백업 및 관리
+        </h3>
+        <p class="text-xs text-slate-500">
+          모든 기록은 현재 기기 브라우저에 안전하게 저장됩니다. 기기 변경이나 캐시 삭제에 대비해 파일로 백업할 수 있습니다.
+        </p>
+        
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="exportDataJSON()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-download"></i> 백업 파일 저장 (JSON)
+          </button>
+          
+          <label class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 cursor-pointer transition">
+            <i class="fa-solid fa-upload"></i> 백업 파일 복원
+            <input type="file" id="importFileInput" accept=".json" onchange="importDataJSON(event)" class="hidden" />
+          </label>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+          <button onclick="loadSampleData()" class="text-xs text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 font-medium transition">
+            <i class="fa-solid fa-vial"></i> 체험용 샘플 데이터 채우기
+          </button>
+          <button onclick="clearAllData()" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 font-medium transition">
+            전체 초기화
+          </button>
+        </div>
+      </div>
+
+      <!-- 전체 타임라인 리스트 -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> 기록 히스토리 타임라인
+          </h3>
+          <div class="flex items-center gap-1 text-xs">
+            <button onclick="filterTimeline('all')" id="btnFilterAll" class="px-2 py-0.5 rounded font-semibold bg-slate-800 text-white">전체</button>
+            <button onclick="filterTimeline('bowel')" id="btnFilterBowel" class="px-2 py-0.5 rounded text-slate-600 bg-slate-100">배변</button>
+            <button onclick="filterTimeline('meal')" id="btnFilterMeal" class="px-2 py-0.5 rounded text-slate-600 bg-slate-100">식사</button>
+          </div>
+        </div>
+
+        <div id="timelineContainer" class="flex flex-col gap-3 pt-1">
+          <!-- JS 렌더링 -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 하단 고정 탭 네비게이션 -->
+  <nav class="fixed bottom-0 w-full max-w-lg bg-white border-t border-slate-200 z-30 shadow-lg flex justify-around py-2 px-1">
+    <button onclick="switchTab('tab-bowel')" id="nav-bowel" class="nav-btn flex-1 flex flex-col items-center gap-1 text-amber-600 py-1 transition">
+      <i class="fa-solid fa-toilet text-lg"></i>
+      <span class="text-[11px] font-bold">배변 기록</span>
+    </button>
+
+    <button onclick="switchTab('tab-meal')" id="nav-meal" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 transition">
+      <i class="fa-solid fa-utensils text-lg"></i>
+      <span class="text-[11px] font-medium">식사 기록</span>
+    </button>
+
+    <button onclick="switchTab('tab-analysis')" id="nav-analysis" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 transition">
+      <i class="fa-solid fa-chart-pie text-lg"></i>
+      <span class="text-[11px] font-medium">트러블 분석</span>
+    </button>
+
+    <button onclick="switchTab('tab-manage')" id="nav-manage" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 py-1 transition">
+      <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+      <span class="text-[11px] font-medium">히스토리</span>
+    </button>
+  </nav>
+
+  <!-- ================================================================= -->
+  <!-- JavaScript 로직 -->
+  <!-- ================================================================= -->
+  <script>
+    // LocalStorage 키
+    const STORAGE_KEY_MEALS = 'jang_meals_v1';
+    const STORAGE_KEY_BOWELS = 'jang_bowels_v1';
+
+    let timelineFilter = 'all';
+
+    // 헬퍼: 현재 시각을 datetime-local 입력 포맷(YYYY-MM-DDTHH:mm)으로 반환
+    function getNowLocalString() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      return now.toISOString().slice(0, 16);
+    }
+
+    // 초기화
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('bowelTime').value = getNowLocalString();
+      document.getElementById('mealTime').value = getNowLocalString();
+      renderAll();
+    });
+
+    // 데이터 로드/저장
+    function getMeals() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_MEALS) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+    function saveMeals(data) {
+      localStorage.setItem(STORAGE_KEY_MEALS, JSON.stringify(data));
+    }
+
+    function getBowels() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_BOWELS) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+    function saveBowels(data) {
+      localStorage.setItem(STORAGE_KEY_BOWELS, JSON.stringify(data));
+    }
+
+    // 탭 전환
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.remove('hidden');
+
+      // 네비게이션 버튼 색상 업데이트
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('text-amber-600', 'font-bold');
+        btn.classList.add('text-slate-400', 'font-medium');
+      });
+
+      const navMap = {
+        'tab-bowel': 'nav-bowel',
+        'tab-meal': 'nav-meal',
+        'tab-analysis': 'nav-analysis',
+        'tab-manage': 'nav-manage'
+      };
+      const activeNav = document.getElementById(navMap[tabId]);
+      if (activeNav) {
+        activeNav.classList.remove('text-slate-400', 'font-medium');
+        activeNav.classList.add('text-amber-600', 'font-bold');
+      }
+
+      if (tabId === 'tab-analysis') renderAnalysis();
+      if (tabId === 'tab-manage') renderTimeline();
+      if (tabId === 'tab-meal') renderRecentMeals();
+      if (tabId === 'tab-bowel') renderFrequentTags();
+    }
+
+    // 문자열에서 음식 키워드 분리 & 정규화
+    function parseFoodKeywords(inputStr) {
+      if (!inputStr) return [];
+      return inputStr
+        .split(/[,+\/\n]/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+    }
+
+    // =================================================================
+    // 1. 배변 기록 로직
+    // =================================================================
+    function handleSaveBowel(e) {
+      e.preventDefault();
+      const time = document.getElementById('bowelTime').value;
+      const statusInput = document.querySelector('input[name="bowelStatus"]:checked');
+      if (!statusInput) {
+        alert('배변 상태를 선택해주세요.');
+        return;
+      }
+      const status = statusInput.value;
+      const meal1 = parseFoodKeywords(document.getElementById('prevMeal1').value);
+      const meal2 = parseFoodKeywords(document.getElementById('prevMeal2').value);
+      const meal3 = parseFoodKeywords(document.getElementById('prevMeal3').value);
+      const memo = document.getElementById('bowelMemo').value.trim();
+
+      const newBowel = {
+        id: 'bowel_' + Date.now(),
+        timestamp: time,
+        status: status,
+        prevMeals: {
+          meal1: meal1,
+          meal2: meal2,
+          meal3: meal3
+        },
+        memo: memo
+      };
+
+      const bowels = getBowels();
+      bowels.unshift(newBowel);
+      // 시간순 정렬 (최신순)
+      bowels.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      saveBowels(bowels);
+
+      alert(`[${status}] 배변 기록이 저장되었습니다!`);
+      // 폼 초기화
+      document.getElementById('bowelForm').reset();
+      document.getElementById('bowelTime').value = getNowLocalString();
+      dismissNotice();
+      renderAll();
+      switchTab('tab-analysis');
+    }
+
+    // 자동 불러오기: 현재 설정된 배변 시각 이전의 최근 3개 식사 매칭
+    function autoFillPrevMeals() {
+      const bowelTimeStr = document.getElementById('bowelTime').value;
+      const bowelDate = new Date(bowelTimeStr);
+
+      const meals = getMeals();
+      // 배변 시각보다 이전에 먹은 식사만 필터링 (최신순 정렬)
+      const prevMeals = meals
+        .filter(m => new Date(m.timestamp) <= bowelDate)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      if (prevMeals.length === 0) {
+        alert('해당 배변 시간 이전에 등록된 식사 기록이 없습니다. 평소 식사 기록 탭에서 먼저 등록하거나 아래에 직접 입력해주세요.');
+        return;
+      }
+
+      if (prevMeals[0]) {
+        document.getElementById('prevMeal1').value = prevMeals[0].foods.join(', ');
+      }
+      if (prevMeals[1]) {
+        document.getElementById('prevMeal2').value = prevMeals[1].foods.join(', ');
+      }
+      if (prevMeals[2]) {
+        document.getElementById('prevMeal3').value = prevMeals[2].foods.join(', ');
+      }
+
+      const notice = document.getElementById('autoMatchNotice');
+      const noticeText = document.getElementById('autoMatchText');
+      noticeText.innerHTML = `<i class="fa-solid fa-circle-check text-amber-600 mr-1"></i> 이전 식사 기록 중 <strong>${Math.min(3, prevMeals.length)}끼</strong>를 자동으로 채웠습니다. 필요시 수정 가능합니다.`;
+      notice.classList.remove('hidden');
+    }
+
+    function dismissNotice() {
+      const notice = document.getElementById('autoMatchNotice');
+      if (notice) notice.classList.add('hidden');
+    }
+
+    // =================================================================
+    // 2. 평소 식사 기록 로직
+    // =================================================================
+    function handleSaveMeal(e) {
+      e.preventDefault();
+      const time = document.getElementById('mealTime').value;
+      const foodsStr = document.getElementById('mealFoods').value;
+      const memo = document.getElementById('mealMemo').value.trim();
+
+      const foods = parseFoodKeywords(foodsStr);
+      if (foods.length === 0) {
+        alert('최소 1개 이상의 음식 명칭을 입력해주세요.');
+        return;
+      }
+
+      const newMeal = {
+        id: 'meal_' + Date.now(),
+        timestamp: time,
+        foods: foods,
+        memo: memo
+      };
+
+      const meals = getMeals();
+      meals.unshift(newMeal);
+      meals.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      saveMeals(meals);
+
+      alert('식사 기록이 저장되었습니다!');
+      document.getElementById('mealFoods').value = '';
+      document.getElementById('mealMemo').value = '';
+      document.getElementById('mealTime').value = getNowLocalString();
+
+      renderRecentMeals();
+      renderFrequentTags();
+    }
+
+    function renderRecentMeals() {
+      const container = document.getElementById('recentMealList');
+      const meals = getMeals().slice(0, 5);
+      if (meals.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">아직 등록된 식사 기록이 없습니다.</div>';
+        return;
+      }
+
+      container.innerHTML = meals.map(m => `
+        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between">
+          <div>
+            <div class="text-[11px] text-slate-500">${formatDateTime(m.timestamp)}</div>
+            <div class="text-sm font-semibold text-slate-800 flex flex-wrap gap-1 mt-0.5">
+              ${m.foods.map(f => `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-1.5 py-0.5 rounded-md font-medium">${f}</span>`).join('')}
+            </div>
+            ${m.memo ? `<div class="text-[11px] text-slate-400 mt-1"><i class="fa-regular fa-comment-dots"></i> ${m.memo}</div>` : ''}
+          </div>
+          <button onclick="deleteMeal('${m.id}')" class="text-slate-400 hover:text-rose-500 p-1 text-xs transition">
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // 자주 먹은 음식 태그 렌더링 및 클릭 시 1끼 전 인풋에 추가
+    function renderFrequentTags() {
+      const listEl = document.getElementById('frequentTagsList');
+      const meals = getMeals();
+      const bowels = getBowels();
+
+      const counts = {};
+      meals.forEach(m => m.foods.forEach(f => counts[f] = (counts[f] || 0) + 1));
+      bowels.forEach(b => {
+        ['meal1', 'meal2', 'meal3'].forEach(k => {
+          if (b.prevMeals && b.prevMeals[k]) {
+            b.prevMeals[k].forEach(f => counts[f] = (counts[f] || 0) + 1);
+          }
+        });
+      });
+
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      if (sorted.length === 0) {
+        listEl.innerHTML = '<span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>';
+        return;
+      }
+
+      listEl.innerHTML = sorted.map(([food, count]) => `
+        <button type="button" onclick="appendTagToPrevMeal1('${food}')" class="badge-tag bg-slate-100 hover:bg-amber-100 hover:border-amber-300 text-slate-700 text-xs px-2 py-1 rounded-lg border border-slate-200 flex items-center gap-1">
+          <span>+ ${food}</span>
+        </button>
+      `).join('');
+    }
+
+    function appendTagToPrevMeal1(food) {
+      const input = document.getElementById('prevMeal1');
+      const current = parseFoodKeywords(input.value);
+      if (!current.includes(food)) {
+        current.push(food);
+        input.value = current.join(', ');
+      }
+    }
+
+    // =================================================================
+    // 3. 트러블 원인 분석 로직
+    // =================================================================
+    function renderAnalysis() {
+      const bowels = getBowels();
+      
+      const totalCount = bowels.length;
+      const troubleBowels = bowels.filter(b => b.status === '설사' || b.status === '묽은변');
+      const goodBowels = bowels.filter(b => b.status === '된똥' || b.status === '보통');
+
+      document.getElementById('statTotalBowels').innerText = `${totalCount}회`;
+      document.getElementById('statTroubleBowels').innerText = `${troubleBowels.length}회`;
+      document.getElementById('statGoodBowels').innerText = `${goodBowels.length}회`;
+
+      const suspectContainer = document.getElementById('suspectFoodList');
+      const safeContainer = document.getElementById('safeFoodList');
+
+      if (totalCount === 0) {
+        suspectContainer.innerHTML = '<div class="text-xs text-slate-400 py-6 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
+        safeContainer.innerHTML = '<div class="text-xs text-slate-400 py-4 text-center">기록이 부족합니다.</div>';
+        return;
+      }
+
+      // 음식별 통계 집계: troubleCount, goodCount, mealPositionCounts
+      const foodStats = {};
+
+      bowels.forEach(b => {
+        const isTrouble = (b.status === '설사' || b.status === '묽은변');
+        const foodsInThisLog = new Set();
+        const posMap = {};
+
+        ['meal1', 'meal2', 'meal3'].forEach(k => {
+          const list = (b.prevMeals && b.prevMeals[k]) ? b.prevMeals[k] : [];
+          list.forEach(f => {
+            foodsInThisLog.add(f);
+            posMap[f] = posMap[f] || [];
+            posMap[f].push(k);
+          });
+        });
+
+        foodsInThisLog.forEach(f => {
+          if (!foodStats[f]) {
+            foodStats[f] = {
+              name: f,
+              troubleCount: 0,
+              goodCount: 0,
+              totalBowelOccurrences: 0,
+              meal1Count: 0,
+              meal2Count: 0,
+              meal3Count: 0
+            };
+          }
+          foodStats[f].totalBowelOccurrences += 1;
+          if (isTrouble) {
+            foodStats[f].troubleCount += 1;
+            // 식사 위치 카운트
+            if (posMap[f]) {
+              posMap[f].forEach(p => {
+                if (p === 'meal1') foodStats[f].meal1Count += 1;
+                if (p === 'meal2') foodStats[f].meal2Count += 1;
+                if (p === 'meal3') foodStats[f].meal3Count += 1;
+              });
+            }
+          } else {
+            foodStats[f].goodCount += 1;
+          }
+        });
+      });
+
+      const statsArray = Object.values(foodStats);
+
+      // 의심 음식: 설사/묽은변 직전에 1회 이상 등장한 음식 (위험도 내림차순, 트러블 횟수 내림차순)
+      const suspectList = statsArray
+        .filter(s => s.troubleCount > 0)
+        .map(s => {
+          const riskRate = Math.round((s.troubleCount / s.totalBowelOccurrences) * 100);
+          return { ...s, riskRate };
+        })
+        .sort((a, b) => (b.riskRate - a.riskRate) || (b.troubleCount - a.troubleCount));
+
+      // 안전 음식: 된똥/쾌변 직전에 자주 먹고, 설사는 유발하지 않은 음식
+      const safeList = statsArray
+        .filter(s => s.goodCount > 0 && s.troubleCount === 0)
+        .sort((a, b) => b.goodCount - a.goodCount);
+
+      // 렌더링 - 의심 음식
+      if (suspectList.length === 0) {
+        suspectContainer.innerHTML = '<div class="text-xs text-emerald-600 bg-emerald-50 p-3 rounded-xl text-center font-medium">🎉 설사를 유발한 의심 음식이 아직 없습니다!</div>';
+      } else {
+        suspectContainer.innerHTML = suspectList.map((item, idx) => {
+          let badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
+          let warningText = '주의';
+          if (item.riskRate >= 75) {
+            badgeColor = 'bg-red-600 text-white border-red-700';
+            warningText = '위험 (고확률)';
+          } else if (item.riskRate >= 50) {
+            badgeColor = 'bg-orange-500 text-white border-orange-600';
+            warningText = '의심 (중등도)';
+          }
+
+          // 주요 발생 위치 파악
+          let timingHint = '직전 1~3끼';
+          if (item.meal1Count > item.meal2Count && item.meal1Count > item.meal3Count) {
+            timingHint = '주로 바로 직전(1끼 전) 섭취 후 발병';
+          } else if (item.meal2Count > item.meal1Count && item.meal2Count > item.meal3Count) {
+            timingHint = '섭취 후 1끼 지난 뒤(2끼 전) 발병';
+          }
+
+          return `
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
+                  <span class="font-bold text-sm text-slate-800">${item.name}</span>
+                </div>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">
+                  ${warningText} (위험도 ${item.riskRate}%)
+                </span>
+              </div>
+              <div class="mt-2 text-xs text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>🚨 설사 유발 <strong>${item.troubleCount}회</strong></span>
+                <span class="text-slate-300">|</span>
+                <span>✨ 된똥 <strong>${item.goodCount}회</strong></span>
+                <span class="text-slate-300">|</span>
+                <span class="text-slate-500 text-[11px]"><i class="fa-solid fa-clock-rotate-left"></i> ${timingHint}</span>
+              </div>
+              <!-- 위험도 프로그레스 바 -->
+              <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                <div class="bg-rose-500 h-1.5 rounded-full" style="width: ${item.riskRate}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 렌더링 - 안전 음식
+      if (safeList.length === 0) {
+        safeContainer.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">아직 쾌변 전용 안전 음식 데이터가 충분하지 않습니다.</div>';
+      } else {
+        safeContainer.innerHTML = safeList.map(item => `
+          <div class="p-2.5 bg-emerald-50/50 border border-emerald-200 rounded-xl flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-800">✅ ${item.name}</span>
+            <span class="text-xs text-emerald-700 font-medium">황금된똥 직전 ${item.goodCount}회 섭취</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // =================================================================
+    // 4. 타임라인 & 데이터 관리
+    // =================================================================
+    function filterTimeline(filter) {
+      timelineFilter = filter;
+      document.getElementById('btnFilterAll').className = (filter === 'all') ? 'px-2 py-0.5 rounded font-semibold bg-slate-800 text-white' : 'px-2 py-0.5 rounded text-slate-600 bg-slate-100';
+      document.getElementById('btnFilterBowel').className = (filter === 'bowel') ? 'px-2 py-0.5 rounded font-semibold bg-slate-800 text-white' : 'px-2 py-0.5 rounded text-slate-600 bg-slate-100';
+      document.getElementById('btnFilterMeal').className = (filter === 'meal') ? 'px-2 py-0.5 rounded font-semibold bg-slate-800 text-white' : 'px-2 py-0.5 rounded text-slate-600 bg-slate-100';
+      renderTimeline();
+    }
+
+    function renderTimeline() {
+      const container = document.getElementById('timelineContainer');
+      const meals = getMeals().map(m => ({ ...m, type: 'meal' }));
+      const bowels = getBowels().map(b => ({ ...b, type: 'bowel' }));
+
+      let combined = [];
+      if (timelineFilter === 'all') combined = [...meals, ...bowels];
+      else if (timelineFilter === 'meal') combined = meals;
+      else if (timelineFilter === 'bowel') combined = bowels;
+
+      combined.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      if (combined.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-400 py-8 text-center">등록된 기록이 없습니다.</div>';
+        return;
+      }
+
+      container.innerHTML = combined.map(item => {
+        if (item.type === 'meal') {
+          return `
+            <div class="p-3 bg-white border-l-4 border-l-emerald-500 border border-slate-200 rounded-xl shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                  🍚 평소 식사
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-slate-400">${formatDateTime(item.timestamp)}</span>
+                  <button onclick="deleteMeal('${item.id}')" class="text-slate-300 hover:text-rose-500 text-xs transition">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                ${item.foods.map(f => `<span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded-md font-medium">${f}</span>`).join('')}
+              </div>
+              ${item.memo ? `<div class="text-xs text-slate-500 mt-1">📝 ${item.memo}</div>` : ''}
+            </div>
+          `;
+        } else {
+          // 배변 기록
+          const isTrouble = (item.status === '설사' || item.status === '묽은변');
+          const borderStyle = isTrouble ? 'border-l-4 border-l-rose-500' : 'border-l-4 border-l-amber-500';
+          const badgeStyle = isTrouble ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700';
+
+          const prev1 = item.prevMeals?.meal1 || [];
+          const prev2 = item.prevMeals?.meal2 || [];
+          const prev3 = item.prevMeals?.meal3 || [];
+
+          return `
+            <div class="p-3 bg-white ${borderStyle} border border-slate-200 rounded-xl shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${badgeStyle}">
+                  ${item.status === '설사' ? '🚨' : item.status === '묽은변' ? '💧' : '✨'} ${item.status}
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-slate-400">${formatDateTime(item.timestamp)}</span>
+                  <button onclick="deleteBowel('${item.id}')" class="text-slate-300 hover:text-rose-500 text-xs transition">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 직전 3끼 내역 -->
+              <div class="mt-2 text-xs bg-slate-50 p-2 rounded-lg border border-slate-100 flex flex-col gap-1">
+                <div class="font-semibold text-slate-600 text-[11px] mb-0.5">직전 3끼 섭취 음식:</div>
+                <div class="text-slate-700 text-[11px]">
+                  <span class="font-medium text-orange-600">[1끼 전]</span> ${prev1.length > 0 ? prev1.join(', ') : '<span class="text-slate-400">기록없음</span>'}
+                </div>
+                <div class="text-slate-700 text-[11px]">
+                  <span class="font-medium text-slate-500">[2끼 전]</span> ${prev2.length > 0 ? prev2.join(', ') : '<span class="text-slate-400">기록없음</span>'}
+                </div>
+                <div class="text-slate-700 text-[11px]">
+                  <span class="font-medium text-slate-500">[3끼 전]</span> ${prev3.length > 0 ? prev3.join(', ') : '<span class="text-slate-400">기록없음</span>'}
+                </div>
+              </div>
+
+              ${item.memo ? `<div class="text-xs text-slate-500 mt-2">📝 ${item.memo}</div>` : ''}
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    function deleteMeal(id) {
+      if (!confirm('이 식사 기록을 삭제하시겠습니까?')) return;
+      let meals = getMeals().filter(m => m.id !== id);
+      saveMeals(meals);
+      renderAll();
+    }
+
+    function deleteBowel(id) {
+      if (!confirm('이 배변 기록을 삭제하시겠습니까?')) return;
+      let bowels = getBowels().filter(b => b.id !== id);
+      saveBowels(bowels);
+      renderAll();
+    }
+
+    // 전체 데이터 렌더링 갱신
+    function renderAll() {
+      renderRecentMeals();
+      renderFrequentTags();
+      renderAnalysis();
+      renderTimeline();
+    }
+
+    // 날짜 포맷팅
+    function formatDateTime(dtStr) {
+      if (!dtStr) return '';
+      const d = new Date(dtStr);
+      if (isNaN(d.getTime())) return dtStr;
+      const m = d.getMonth() + 1;
+      const day = d.getDate();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const mins = String(d.getMinutes()).padStart(2, '0');
+      return `${m}월 ${day}일 ${hours}:${mins}`;
+    }
+
+    // =================================================================
+    // 5. JSON 백업 및 복원
+    // =================================================================
+    function exportDataJSON() {
+      const data = {
+        exportedAt: new Date().toISOString(),
+        version: 1,
+        meals: getMeals(),
+        bowels: getBowels()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      a.href = url;
+      a.download = `jang_issue_backup_${dateStr}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importDataJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const json = JSON.parse(event.target.result);
+          if (!json.meals || !json.bowels) {
+            alert('올바른 백업 파일 형식이 아닙니다.');
+            return;
+          }
+          if (confirm(`백업 파일에서 식사 ${json.meals.length}건, 배변 ${json.bowels.length}건을 복원하시겠습니까? 기존 데이터에 병합됩니다.`)) {
+            const currentMeals = getMeals();
+            const currentBowels = getBowels();
+
+            // ID 기준 중복 제거 병합
+            const mealMap = new Map(currentMeals.map(m => [m.id, m]));
+            json.meals.forEach(m => mealMap.set(m.id, m));
+            saveMeals(Array.from(mealMap.values()));
+
+            const bowelMap = new Map(currentBowels.map(b => [b.id, b]));
+            json.bowels.forEach(b => bowelMap.set(b.id, b));
+            saveBowels(Array.from(bowelMap.values()));
+
+            alert('복원이 성공적으로 완료되었습니다!');
+            renderAll();
+          }
+        } catch (err) {
+          alert('파일을 읽는 도중 오류가 발생했습니다: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+
+    function clearAllData() {
+      if (confirm('정말로 모든 식사 및 배변 기록을 영구 삭제하시겠습니까? (복구할 수 없습니다)')) {
+        localStorage.removeItem(STORAGE_KEY_MEALS);
+        localStorage.removeItem(STORAGE_KEY_BOWELS);
+        alert('모든 데이터가 초기화되었습니다.');
+        renderAll();
+      }
+    }
+
+    // =================================================================
+    // 6. 체험용 샘플 데이터 채우기
+    // =================================================================
+    function loadSampleData() {
+      if (!confirm('체험용 샘플 데이터를 추가하시겠습니까? (우유, 마라탕 등으로 인한 설사 및 쾌변 패턴이 포함되어 즉시 통계를 확인할 수 있습니다)')) return;
+
+      const now = new Date();
+      const createTime = (hoursAgo) => {
+        const d = new Date(now.getTime() - hoursAgo * 3600 * 1000);
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        return d.toISOString().slice(0, 16);
+      };
+
+      const sampleMeals = [
+        { id: 'sm_1', timestamp: createTime(48), foods: ['김치찌개', '백반', '계란후라이'], memo: '집밥' },
+        { id: 'sm_2', timestamp: createTime(42), foods: ['아메리카노', '샌드위치'], memo: '간단한 점심' },
+        { id: 'sm_3', timestamp: createTime(36), foods: ['마라탕', '꿔바로우', '우유'], memo: '매운 저녁' },
+        { id: 'sm_4', timestamp: createTime(28), foods: ['된장찌개', '시금치나물', '잡곡밥'], memo: '건강식 아침' },
+        { id: 'sm_5', timestamp: createTime(24), foods: ['연어샐러드', '사과'], memo: '점심' },
+        { id: 'sm_6', timestamp: createTime(16), foods: ['불닭볶음면', '카페라떼(우유)'], memo: '야식' },
+        { id: 'sm_7', timestamp: createTime(12), foods: ['바나나', '플레인요거트'], memo: '아침' },
+        { id: 'sm_8', timestamp: createTime(4), foods: ['치즈피자', '크림파스타(우유)'], memo: '점심' }
+      ];
+
+      const sampleBowels = [
+        {
+          id: 'sb_1',
+          timestamp: createTime(34),
+          status: '설사',
+          prevMeals: {
+            meal1: ['마라탕', '꿔바로우', '우유'],
+            meal2: ['아메리카노', '샌드위치'],
+            meal3: ['김치찌개', '백반', '계란후라이']
+          },
+          memo: '마라탕 먹고 2시간 뒤 배 쥐어짜듯 아픔'
+        },
+        {
+          id: 'sb_2',
+          timestamp: createTime(20),
+          status: '된똥',
+          prevMeals: {
+            meal1: ['연어샐러드', '사과'],
+            meal2: ['된장찌개', '시금치나물', '잡곡밥'],
+            meal3: ['마라탕', '꿔바로우', '우유']
+          },
+          memo: '속 편안하고 기분 좋은 쾌변'
+        },
+        {
+          id: 'sb_3',
+          timestamp: createTime(14),
+          status: '설사',
+          prevMeals: {
+            meal1: ['불닭볶음면', '카페라떼(우유)'],
+            meal2: ['연어샐러드', '사과'],
+            meal3: ['된장찌개', '시금치나물', '잡곡밥']
+          },
+          memo: '새벽에 배에서 소리 심하게 나며 물설사'
+        },
+        {
+          id: 'sb_4',
+          timestamp: createTime(2),
+          status: '묽은변',
+          prevMeals: {
+            meal1: ['치즈피자', '크림파스타(우유)'],
+            meal2: ['바나나', '플레인요거트'],
+            meal3: ['불닭볶음면', '카페라떼(우유)']
+          },
+          memo: '크림파스타 먹고 가스 차면서 묽은변'
+        }
+      ];
+
+      const currentMeals = getMeals();
+      const currentBowels = getBowels();
+      saveMeals([...sampleMeals, ...currentMeals]);
+      saveBowels([...sampleBowels, ...currentBowels]);
+
+      alert('샘플 데이터가 채워졌습니다! [트러블 분석] 탭에서 우유, 매운음식의 위험도 통계를 확인해보세요.');
+      renderAll();
+      switchTab('tab-analysis');
+    }
+  </script>
+</body>
+</html>
