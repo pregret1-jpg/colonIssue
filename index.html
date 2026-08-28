@@ -308,13 +308,13 @@
         </div>
       </div>
 
-      <!-- 스마트 인과관계 분석 안내 배너 -->
-      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-3 rounded-2xl text-xs text-amber-900 flex items-start gap-2 shadow-2xs">
-        <span class="text-base text-amber-600 mt-0.5">🧠</span>
+      <!-- 의학적 잠복기 & 인과관계 분석 안내 배너 -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-3.5 rounded-2xl text-xs text-amber-900 flex items-start gap-2.5 shadow-2xs">
+        <span class="text-lg text-amber-600 mt-0.5">⏱️</span>
         <div class="leading-relaxed">
-          <div class="font-bold text-amber-900">스마트 인과관계 추적 가동 중 (중복 집계 방지)</div>
+          <div class="font-bold text-amber-900 text-xs">의학적 잠복기 & 시차 추적 알고리즘 가동 중</div>
           <div class="text-[11px] text-amber-800 mt-0.5">
-            이미 된똥으로 정상 배출된 과거 식사는 묽은변 용의선상에서 <strong>자동 제외(무죄 판정)</strong>되어, 실제 트러블을 일으킨 새 음식만 정확히 짚어냅니다.
+            먹은 직후 발생하는 <strong>⚡ 급성 자극(1~3시간)</strong>과 전날 저녁 상한 음식 등의 <strong>⏳ 지연성 잠복기(8~18시간)</strong>를 구분하여 진짜 원인 음식을 찾아냅니다.
           </div>
         </div>
       </div>
@@ -942,7 +942,7 @@
     }
 
     // =================================================================
-    // 3. 트러블 원인 분석 로직 (스마트 무죄 판정 & 중복 카운트 방지)
+    // 3. 트러블 원인 분석 로직 (의학적 잠복기 & 급성/지연성 정밀 추적)
     // =================================================================
     function renderAnalysis() {
       const bowels = getBowels();
@@ -966,11 +966,11 @@
         return;
       }
 
-      // 시간 오름차순(과거 -> 최신) 정렬하여 인과관계 순차 추적
+      // 시간 오름차순(과거 -> 최신) 정렬
       const chronologicalBowels = [...bowels].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-      // 음식별 통계 데이터 구조:
-      // { name, troubleCount, goodCount, totalExposure, meal1Count, meal2Count, meal3Count, exoneratedCount, isAcute }
+      // 음식별 통계 집계:
+      // { name, troubleCount, acuteCount, delayedCount, slowCount, goodCount, totalExposure, meal1Count, meal2Count, meal3Count }
       const foodStats = {};
 
       function getStat(food) {
@@ -978,45 +978,34 @@
           foodStats[food] = {
             name: food,
             troubleCount: 0,
+            acuteCount: 0,    // 1끼 전 (1~4시간 내 급성)
+            delayedCount: 0,  // 2끼 전 (8~16시간 지연성 잠복기)
+            slowCount: 0,     // 3끼 전 (16~28시간 소화 지연/발효)
             goodCount: 0,
             totalExposure: 0,
             meal1Count: 0,
             meal2Count: 0,
-            meal3Count: 0,
-            exoneratedCount: 0,
-            isAcute: false
+            meal3Count: 0
           };
         }
         return foodStats[food];
       }
 
-      // 순수 식사 끼니 수 추적 (중복 슬롯 제거)
+      // 순수 식사 끼니 수 집계
       let uniqueMealSignatures = new Set();
 
       for (let i = 0; i < chronologicalBowels.length; i++) {
         const b = chronologicalBowels[i];
         const isTrouble = (b.status === '설사' || b.status === '묽은변');
-        const prevBowel = i > 0 ? chronologicalBowels[i - 1] : null;
 
         const m1 = (b.prevMeals && b.prevMeals.meal1) ? b.prevMeals.meal1 : [];
         const m2 = (b.prevMeals && b.prevMeals.meal2) ? b.prevMeals.meal2 : [];
         const m3 = (b.prevMeals && b.prevMeals.meal3) ? b.prevMeals.meal3 : [];
 
-        // 고유 식사 카운트 (1끼전은 해당 시점의 고유 식사로 반드시 기록)
         if (m1.length > 0) uniqueMealSignatures.add(`b_${b.id}_m1_${m1.sort().join('|')}`);
-        // 첫 번째 배변 기록인 경우 2끼전, 3끼전도 최초 식사로 카운트
         if (i === 0) {
           if (m2.length > 0) uniqueMealSignatures.add(`b_${b.id}_m2_${m2.sort().join('|')}`);
           if (m3.length > 0) uniqueMealSignatures.add(`b_${b.id}_m3_${m3.sort().join('|')}`);
-        }
-
-        // 직전 배변에서 이미 정상 배출(된똥/보통)된 음식 목록 파악
-        const prevExoneratedFoods = new Set();
-        if (prevBowel && (prevBowel.status === '된똥' || prevBowel.status === '보통')) {
-          const pm1 = prevBowel.prevMeals?.meal1 || [];
-          const pm2 = prevBowel.prevMeals?.meal2 || [];
-          const pm3 = prevBowel.prevMeals?.meal3 || [];
-          [...pm1, ...pm2, ...pm3].forEach(f => prevExoneratedFoods.add(f));
         }
 
         // 1) 쾌변(된똥/보통)인 경우:
@@ -1026,37 +1015,40 @@
             const st = getStat(f);
             st.goodCount += 1;
             st.totalExposure += 1;
+            if (m1.includes(f)) st.meal1Count += 1;
+            if (m2.includes(f)) st.meal2Count += 1;
+            if (m3.includes(f)) st.meal3Count += 1;
           });
-        } 
-        // 2) 트러블(설사/묽은변)인 경우 (스마트 무죄 판정 적용):
+        }
+        // 2) 트러블(설사/묽은변)인 경우 (의학적 잠복기 모델 적용):
         else {
-          const currentTroubleFoods = new Set();
+          const distinctTroubleFoods = new Set();
 
-          // 1끼 전(새로 먹은 음식)은 직접 유발 요인으로 등록
+          // 1끼 전 (급성 반응 시간대)
           m1.forEach(f => {
-            currentTroubleFoods.add(f);
+            distinctTroubleFoods.add(f);
             const st = getStat(f);
+            st.acuteCount += 1;
             st.meal1Count += 1;
-            if (prevBowel && (prevBowel.status === '된똥' || prevBowel.status === '보통')) {
-              st.isAcute = true; // 쾌변 직후 새 음식 섭취로 발병한 급성 트러블
-            }
           });
 
-          // 2끼 전, 3끼 전에 대해 무죄 판정 여부 확인
-          [...m2, ...m3].forEach(f => {
+          // 2끼 전 (8~16시간 지연성 잠복기 시간대: 상한 음식, 세균성 독소의 황금 시간대!)
+          m2.forEach(f => {
+            distinctTroubleFoods.add(f);
             const st = getStat(f);
-            if (prevExoneratedFoods.has(f)) {
-              // 이미 직전 쾌변 때 배출 완료된 음식은 이번 설사 누명에서 제외 (무죄)
-              st.exoneratedCount += 1;
-            } else {
-              // 이전 배변도 설사였거나, 쾌변 시점에 없었던 음식은 의심 유지
-              currentTroubleFoods.add(f);
-              if (m2.includes(f)) st.meal2Count += 1;
-              if (m3.includes(f)) st.meal3Count += 1;
-            }
+            st.delayedCount += 1;
+            st.meal2Count += 1;
           });
 
-          currentTroubleFoods.forEach(f => {
+          // 3끼 전 (16~28시간 소화 지연/발효 시간대: 고포드맵, 장내 발효)
+          m3.forEach(f => {
+            distinctTroubleFoods.add(f);
+            const st = getStat(f);
+            st.slowCount += 1;
+            st.meal3Count += 1;
+          });
+
+          distinctTroubleFoods.forEach(f => {
             const st = getStat(f);
             st.troubleCount += 1;
             st.totalExposure += 1;
@@ -1076,7 +1068,27 @@
         .filter(s => s.troubleCount > 0)
         .map(s => {
           const riskRate = Math.round((s.troubleCount / (s.troubleCount + s.goodCount)) * 100);
-          return { ...s, riskRate };
+          
+          // 우세한 발병 패턴 분석
+          let patternType = 'acute'; // acute, delayed, slow
+          let patternBadge = '';
+          let timingHint = '';
+
+          if (s.delayedCount > s.acuteCount && s.delayedCount >= s.slowCount) {
+            patternType = 'delayed';
+            patternBadge = '⏳ 지연성 잠복기';
+            timingHint = '섭취 후 8~16시간 뒤 발병 (세균성/독소 잠복기 의심)';
+          } else if (s.slowCount > s.acuteCount && s.slowCount > s.delayedCount) {
+            patternType = 'slow';
+            patternBadge = '🔄 소화 지연/발효';
+            timingHint = '섭취 후 16~24시간 뒤 발병 (장내 가스/발효 반응)';
+          } else {
+            patternType = 'acute';
+            patternBadge = '⚡ 급성 자극';
+            timingHint = '섭취 직후(1~3시간) 빠른 발병 (유당/매운맛/장반사)';
+          }
+
+          return { ...s, riskRate, patternType, patternBadge, timingHint };
         })
         .sort((a, b) => (b.riskRate - a.riskRate) || (b.troubleCount - a.troubleCount));
 
@@ -1091,20 +1103,14 @@
       } else {
         suspectContainer.innerHTML = suspectList.map((item, idx) => {
           let badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
-          let warningText = '주의';
-          if (item.isAcute || item.riskRate >= 75) {
+          if (item.patternType === 'delayed') {
+            badgeColor = 'bg-purple-100 text-purple-700 border-purple-300';
+          } else if (item.patternType === 'slow') {
+            badgeColor = 'bg-indigo-100 text-indigo-700 border-indigo-300';
+          } else if (item.riskRate >= 75) {
             badgeColor = 'bg-red-600 text-white border-red-700';
-            warningText = item.isAcute ? '🚨 급성 유발 (100%)' : `위험 (${item.riskRate}%)`;
           } else if (item.riskRate >= 50) {
             badgeColor = 'bg-orange-500 text-white border-orange-600';
-            warningText = `의심 (${item.riskRate}%)`;
-          }
-
-          let timingHint = '직전 1~3끼';
-          if (item.isAcute || item.meal1Count > 0) {
-            timingHint = '직전 쾌변 이후 새로 섭취 후 급성 발병';
-          } else if (item.meal2Count > item.meal3Count) {
-            timingHint = '섭취 후 2끼 시점에 발병';
           }
 
           return `
@@ -1115,19 +1121,19 @@
                   <span class="font-bold text-sm text-slate-800">${item.name}</span>
                 </div>
                 <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">
-                  ${warningText}
+                  ${item.patternBadge} (${item.riskRate}%)
                 </span>
               </div>
               <div class="mt-2 text-xs text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span>🚨 설사 유발 <strong>${item.troubleCount}회</strong></span>
                 <span class="text-slate-300">|</span>
-                <span>✨ 된똥 <strong>${item.goodCount}회</strong></span>
+                <span>✨ 쾌변 통과 <strong>${item.goodCount}회</strong></span>
                 <span class="text-slate-300">|</span>
-                <span class="text-slate-500 text-[11px]"><i class="fa-solid fa-bolt text-amber-500"></i> ${timingHint}</span>
+                <span class="text-slate-500 text-[11px]">${item.timingHint}</span>
               </div>
               <!-- 위험도 프로그레스 바 -->
               <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
-                <div class="bg-rose-500 h-1.5 rounded-full" style="width: ${item.riskRate}%"></div>
+                <div class="${item.patternType === 'delayed' ? 'bg-purple-500' : 'bg-rose-500'} h-1.5 rounded-full" style="width: ${item.riskRate}%"></div>
               </div>
             </div>
           `;
@@ -1138,20 +1144,12 @@
       if (safeList.length === 0) {
         safeContainer.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">아직 쾌변 전용 안전 음식 데이터가 충분하지 않습니다.</div>';
       } else {
-        safeContainer.innerHTML = safeList.map(item => {
-          const exoneratedBadge = item.exoneratedCount > 0 
-            ? `<span class="text-[10px] text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded font-bold">묽은변 누명 제외됨(${item.exoneratedCount}회)</span>` 
-            : '';
-          return `
-            <div class="p-2.5 bg-emerald-50/50 border border-emerald-200 rounded-xl flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-slate-800">✅ ${item.name}</span>
-                ${exoneratedBadge}
-              </div>
-              <span class="text-xs text-emerald-700 font-medium">황금된똥 직전 ${item.goodCount}회 섭취</span>
-            </div>
-          `;
-        }).join('');
+        safeContainer.innerHTML = safeList.map(item => `
+          <div class="p-2.5 bg-emerald-50/50 border border-emerald-200 rounded-xl flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-800">✅ ${item.name}</span>
+            <span class="text-xs text-emerald-700 font-medium">황금된똥 직전 ${item.goodCount}회 안전 배출</span>
+          </div>
+        `).join('');
       }
     }
 
