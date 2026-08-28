@@ -243,6 +243,16 @@
             <button type="button" onclick="clearInput('mealFoods')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
           </div>
           <p class="text-[11px] text-slate-400 mt-1">여러 메뉴를 함께 드셨다면 쉼표(,)로 구분해 적어주세요.</p>
+
+          <!-- 자주 먹은 음식 추천 태그 (식사 기록용) -->
+          <div class="mt-2.5" id="mealFrequentTagsContainer">
+            <div class="text-[11px] text-slate-500 mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-tags text-slate-400"></i> 클릭하여 음식명에 추가:
+            </div>
+            <div id="mealFrequentTagsList" class="flex flex-wrap gap-1.5">
+              <span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>
+            </div>
+          </div>
         </div>
 
         <!-- 식사 메모 -->
@@ -652,7 +662,10 @@
 
       if (tabId === 'tab-analysis') renderAnalysis();
       if (tabId === 'tab-manage') renderTimeline();
-      if (tabId === 'tab-meal') renderRecentMeals();
+      if (tabId === 'tab-meal') {
+        renderRecentMeals();
+        renderFrequentTags();
+      }
       if (tabId === 'tab-bowel') renderFrequentTags();
       refreshAllClearBtns();
     }
@@ -862,9 +875,10 @@
       `).join('');
     }
 
-    // 자주 먹은 음식 태그 렌더링 및 클릭 시 1끼 전 인풋에 추가
+    // 자주 먹은 음식 태그 렌더링 (배변 기록 및 식사 기록 공통 지원)
     function renderFrequentTags() {
       const listEl = document.getElementById('frequentTagsList');
+      const mealListEl = document.getElementById('mealFrequentTagsList');
       const meals = getMeals();
       const bowels = getBowels();
 
@@ -879,20 +893,46 @@
       });
 
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-      if (sorted.length === 0) {
-        listEl.innerHTML = '<span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>';
-        return;
+
+      // 1) 배변 기록 탭의 태그 목록
+      if (listEl) {
+        if (sorted.length === 0) {
+          listEl.innerHTML = '<span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>';
+        } else {
+          listEl.innerHTML = sorted.map(([food, count]) => `
+            <button type="button" onclick="appendTagToPrevMeal1('${food}')" class="badge-tag bg-slate-100 hover:bg-amber-100 hover:border-amber-300 text-slate-700 text-xs px-2 py-1 rounded-lg border border-slate-200 flex items-center gap-1 transition">
+              <span>+ ${food}</span>
+            </button>
+          `).join('');
+        }
       }
 
-      listEl.innerHTML = sorted.map(([food, count]) => `
-        <button type="button" onclick="appendTagToPrevMeal1('${food}')" class="badge-tag bg-slate-100 hover:bg-amber-100 hover:border-amber-300 text-slate-700 text-xs px-2 py-1 rounded-lg border border-slate-200 flex items-center gap-1">
-          <span>+ ${food}</span>
-        </button>
-      `).join('');
+      // 2) 평소 식사 기록 탭의 태그 목록
+      if (mealListEl) {
+        if (sorted.length === 0) {
+          mealListEl.innerHTML = '<span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>';
+        } else {
+          mealListEl.innerHTML = sorted.map(([food, count]) => `
+            <button type="button" onclick="appendTagToMealFoods('${food}')" class="badge-tag bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 text-slate-700 text-xs px-2 py-1 rounded-lg border border-slate-200 flex items-center gap-1 transition">
+              <span>+ ${food}</span>
+            </button>
+          `).join('');
+        }
+      }
     }
 
     function appendTagToPrevMeal1(food) {
       const input = document.getElementById('prevMeal1');
+      const current = parseFoodKeywords(input.value);
+      if (!current.includes(food)) {
+        current.push(food);
+        input.value = current.join(', ');
+        refreshAllClearBtns();
+      }
+    }
+
+    function appendTagToMealFoods(food) {
+      const input = document.getElementById('mealFoods');
       const current = parseFoodKeywords(input.value);
       if (!current.includes(food)) {
         current.push(food);
