@@ -768,7 +768,15 @@
       switchTab('tab-analysis');
     }
 
-    // 자동 불러오기: 현재 설정된 배변 시각 이전의 최근 3개 식사 매칭
+    function formatElapsedHoursText(hours) {
+      if (hours < 1) {
+        const mins = Math.max(1, Math.round(hours * 60));
+        return `${mins}분 전`;
+      }
+      return `${hours.toFixed(1)}시간 전`;
+    }
+
+    // 자동 불러오기: 현재 설정된 배변 시각 이전의 최근 3개 식사 매칭 및 시간차 계산
     function autoFillPrevMeals() {
       const bowelTimeStr = document.getElementById('bowelTime').value;
       const bowelDate = new Date(bowelTimeStr);
@@ -783,23 +791,30 @@
         return;
       }
 
+      const summaries = [];
       if (prevMeals[0]) {
+        const h0 = Math.max(0.1, (bowelDate - new Date(prevMeals[0].timestamp)) / 3600000);
         document.getElementById('prevMeal1').value = prevMeals[0].foods.join(', ');
+        summaries.push(`1끼(${formatElapsedHoursText(h0)})`);
       }
       if (prevMeals[1]) {
+        const h1 = Math.max(0.1, (bowelDate - new Date(prevMeals[1].timestamp)) / 3600000);
         document.getElementById('wrapperMeal2').classList.remove('hidden');
         document.getElementById('prevMeal2').value = prevMeals[1].foods.join(', ');
         document.getElementById('btnAddMealText').innerText = '이전 식사도 추가하기 (3끼 전)';
+        summaries.push(`2끼(${formatElapsedHoursText(h1)})`);
       }
       if (prevMeals[2]) {
+        const h2 = Math.max(0.1, (bowelDate - new Date(prevMeals[2].timestamp)) / 3600000);
         document.getElementById('wrapperMeal3').classList.remove('hidden');
         document.getElementById('prevMeal3').value = prevMeals[2].foods.join(', ');
         document.getElementById('btnAddMealSlot').classList.add('hidden');
+        summaries.push(`3끼(${formatElapsedHoursText(h2)})`);
       }
 
       const notice = document.getElementById('autoMatchNotice');
       const noticeText = document.getElementById('autoMatchText');
-      noticeText.innerHTML = `<i class="fa-solid fa-circle-check text-amber-600 mr-1"></i> 이전 식사 기록 중 <strong>${Math.min(3, prevMeals.length)}끼</strong>를 불러왔습니다.`;
+      noticeText.innerHTML = `<i class="fa-solid fa-circle-check text-amber-600 mr-1"></i> 이전 식사 <strong>${Math.min(3, prevMeals.length)}끼</strong> 불러옴 (${summaries.join(' / ')}) ⏱️ 시간차 자동 분석`;
       notice.classList.remove('hidden');
       refreshAllClearBtns();
     }
@@ -942,10 +957,11 @@
     }
 
     // =================================================================
-    // 3. 트러블 원인 분석 로직 (의학적 잠복기 & 급성/지연성 정밀 추적)
+    // 3. 트러블 원인 분석 로직 (실제 시간차 Timestamp & 의학적 잠복기 엔진)
     // =================================================================
     function renderAnalysis() {
       const bowels = getBowels();
+      const meals = getMeals();
       
       const totalCount = bowels.length;
       const troubleBowels = bowels.filter(b => b.status === '설사' || b.status === '묽은변');
@@ -960,17 +976,14 @@
       const statUniqueMealsEl = document.getElementById('statUniqueMeals');
 
       if (totalCount === 0) {
-        if (statUniqueMealsEl) statUniqueMealsEl.innerText = '0끼';
+        if (statUniqueMealsEl) statUniqueMealsEl.innerText = `${meals.length}끼`;
         suspectContainer.innerHTML = '<div class="text-xs text-slate-400 py-6 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
         safeContainer.innerHTML = '<div class="text-xs text-slate-400 py-4 text-center">기록이 부족합니다.</div>';
         return;
       }
 
-      // 시간 오름차순(과거 -> 최신) 정렬
-      const chronologicalBowels = [...bowels].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
       // 음식별 통계 집계:
-      // { name, troubleCount, acuteCount, delayedCount, slowCount, goodCount, totalExposure, meal1Count, meal2Count, meal3Count }
+      // { name, troubleCount, goodCount, acuteCount, delayedCount, slowCount, acuteHours: [], delayedHours: [], slowHours: [], goodHours: [] }
       const foodStats = {};
 
       function getStat(food) {
@@ -978,14 +991,14 @@
           foodStats[food] = {
             name: food,
             troubleCount: 0,
-            acuteCount: 0,    // 1끼 전 (1~4시간 내 급성)
-            delayedCount: 0,  // 2끼 전 (8~16시간 지연성 잠복기)
-            slowCount: 0,     // 3끼 전 (16~28시간 소화 지연/발효)
             goodCount: 0,
-            totalExposure: 0,
-            meal1Count: 0,
-            meal2Count: 0,
-            meal3Count: 0
+            acuteCount: 0,    // 0 ~ 4시간 (급성)
+            delayedCount: 0,  // 4 ~ 18시간 (지연성 잠복기)
+            slowCount: 0,     // 18 ~ 36시간 (장내 발효/지연)
+            acuteHours: [],
+            delayedHours: [],
+            slowHours: [],
+            goodHours: []
           };
         }
         return foodStats[food];
@@ -993,106 +1006,117 @@
 
       // 순수 식사 끼니 수 집계
       let uniqueMealSignatures = new Set();
+      meals.forEach(m => uniqueMealSignatures.add(`m_${m.id}`));
 
-      for (let i = 0; i < chronologicalBowels.length; i++) {
-        const b = chronologicalBowels[i];
+      // 각 배변 이벤트별로 과거 36시간 이내의 식사를 시간차(hours)로 분석
+      bowels.forEach(b => {
         const isTrouble = (b.status === '설사' || b.status === '묽은변');
+        const bDate = new Date(b.timestamp);
 
-        const m1 = (b.prevMeals && b.prevMeals.meal1) ? b.prevMeals.meal1 : [];
-        const m2 = (b.prevMeals && b.prevMeals.meal2) ? b.prevMeals.meal2 : [];
-        const m3 = (b.prevMeals && b.prevMeals.meal3) ? b.prevMeals.meal3 : [];
+        // 1) 평소 식사 기록(meals) 중 bDate 이전 36시간 이내 매칭
+        const matchedTimelineMeals = meals.filter(m => {
+          const mDate = new Date(m.timestamp);
+          const diffMs = bDate - mDate;
+          return diffMs >= 0 && diffMs <= (36 * 3600 * 1000);
+        });
 
-        if (m1.length > 0) uniqueMealSignatures.add(`b_${b.id}_m1_${m1.sort().join('|')}`);
-        if (i === 0) {
-          if (m2.length > 0) uniqueMealSignatures.add(`b_${b.id}_m2_${m2.sort().join('|')}`);
-          if (m3.length > 0) uniqueMealSignatures.add(`b_${b.id}_m3_${m3.sort().join('|')}`);
-        }
+        // 2) 배변 카드에 직접 적힌 식사(prevMeals)도 수집
+        const directMeal1 = b.prevMeals?.meal1 || [];
+        const directMeal2 = b.prevMeals?.meal2 || [];
+        const directMeal3 = b.prevMeals?.meal3 || [];
 
-        // 1) 쾌변(된똥/보통)인 경우:
-        if (!isTrouble) {
-          const distinctInThisBowel = new Set([...m1, ...m2, ...m3]);
-          distinctInThisBowel.forEach(f => {
-            const st = getStat(f);
+        if (directMeal1.length > 0) uniqueMealSignatures.add(`b_${b.id}_1_${directMeal1.sort().join('|')}`);
+        if (directMeal2.length > 0) uniqueMealSignatures.add(`b_${b.id}_2_${directMeal2.sort().join('|')}`);
+        if (directMeal3.length > 0) uniqueMealSignatures.add(`b_${b.id}_3_${directMeal3.sort().join('|')}`);
+
+        // 이번 배변에 영향을 준 음식들과 경과 시간 매핑: Map<food, elapsedHours>
+        const eventFoodMap = new Map();
+
+        // 1순위: 타임라인에 실제 등록된 식사들의 정밀 시간차(hours)
+        matchedTimelineMeals.forEach(m => {
+          const elapsed = Math.max(0.2, (bDate - new Date(m.timestamp)) / (3600 * 1000));
+          m.foods.forEach(f => {
+            if (!eventFoodMap.has(f) || eventFoodMap.get(f) > elapsed) {
+              eventFoodMap.set(f, elapsed);
+            }
+          });
+        });
+
+        // 2순위: 배변 기록에 직접 입력된 음식 (타임라인에 없으면 추정치 적용)
+        directMeal1.forEach(f => {
+          if (!eventFoodMap.has(f)) eventFoodMap.set(f, 1.8); // 직전 약 1.8시간 전
+        });
+        directMeal2.forEach(f => {
+          if (!eventFoodMap.has(f)) eventFoodMap.set(f, 13.5); // 전날 저녁 약 13.5시간 전
+        });
+        directMeal3.forEach(f => {
+          if (!eventFoodMap.has(f)) eventFoodMap.set(f, 22.0); // 약 22시간 전
+        });
+
+        // 집계 반영
+        eventFoodMap.forEach((elapsedHours, food) => {
+          const st = getStat(food);
+          if (!isTrouble) {
+            // 쾌변(된똥/보통)으로 안전 배출
             st.goodCount += 1;
-            st.totalExposure += 1;
-            if (m1.includes(f)) st.meal1Count += 1;
-            if (m2.includes(f)) st.meal2Count += 1;
-            if (m3.includes(f)) st.meal3Count += 1;
-          });
-        }
-        // 2) 트러블(설사/묽은변)인 경우 (의학적 잠복기 모델 적용):
-        else {
-          const distinctTroubleFoods = new Set();
-
-          // 1끼 전 (급성 반응 시간대)
-          m1.forEach(f => {
-            distinctTroubleFoods.add(f);
-            const st = getStat(f);
-            st.acuteCount += 1;
-            st.meal1Count += 1;
-          });
-
-          // 2끼 전 (8~16시간 지연성 잠복기 시간대: 상한 음식, 세균성 독소의 황금 시간대!)
-          m2.forEach(f => {
-            distinctTroubleFoods.add(f);
-            const st = getStat(f);
-            st.delayedCount += 1;
-            st.meal2Count += 1;
-          });
-
-          // 3끼 전 (16~28시간 소화 지연/발효 시간대: 고포드맵, 장내 발효)
-          m3.forEach(f => {
-            distinctTroubleFoods.add(f);
-            const st = getStat(f);
-            st.slowCount += 1;
-            st.meal3Count += 1;
-          });
-
-          distinctTroubleFoods.forEach(f => {
-            const st = getStat(f);
+            st.goodHours.push(elapsedHours);
+          } else {
+            // 트러블(설사/묽은변) 유발
             st.troubleCount += 1;
-            st.totalExposure += 1;
-          });
-        }
-      }
+            if (elapsedHours <= 4.0) {
+              st.acuteCount += 1;
+              st.acuteHours.push(elapsedHours);
+            } else if (elapsedHours <= 18.0) {
+              st.delayedCount += 1;
+              st.delayedHours.push(elapsedHours);
+            } else {
+              st.slowCount += 1;
+              st.slowHours.push(elapsedHours);
+            }
+          }
+        });
+      });
 
-      // 평소 식사 기록도 고유 식사 수에 반영
-      const meals = getMeals();
-      meals.forEach(m => uniqueMealSignatures.add(`meal_${m.id}`));
       if (statUniqueMealsEl) statUniqueMealsEl.innerText = `${Math.max(uniqueMealSignatures.size, 1)}끼`;
 
       const statsArray = Object.values(foodStats);
 
-      // 의심 음식: 설사/묽은변의 원인으로 지목된 음식
+      // 의심 음식: 설사/묽은변 원인 지목
       const suspectList = statsArray
         .filter(s => s.troubleCount > 0)
         .map(s => {
           const riskRate = Math.round((s.troubleCount / (s.troubleCount + s.goodCount)) * 100);
-          
-          // 우세한 발병 패턴 분석
-          let patternType = 'acute'; // acute, delayed, slow
+
+          let patternType = 'acute';
           let patternBadge = '';
           let timingHint = '';
+          let badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
 
           if (s.delayedCount > s.acuteCount && s.delayedCount >= s.slowCount) {
             patternType = 'delayed';
             patternBadge = '⏳ 지연성 잠복기';
-            timingHint = '섭취 후 8~16시간 뒤 발병 (세균성/독소 잠복기 의심)';
+            badgeColor = 'bg-purple-100 text-purple-700 border-purple-300';
+            const avgH = s.delayedHours.reduce((a, b) => a + b, 0) / (s.delayedHours.length || 1);
+            timingHint = `평균 ${avgH.toFixed(1)}시간 전 섭취 (세균성/독소 잠복기 구간)`;
           } else if (s.slowCount > s.acuteCount && s.slowCount > s.delayedCount) {
             patternType = 'slow';
             patternBadge = '🔄 소화 지연/발효';
-            timingHint = '섭취 후 16~24시간 뒤 발병 (장내 가스/발효 반응)';
+            badgeColor = 'bg-indigo-100 text-indigo-700 border-indigo-300';
+            const avgH = s.slowHours.reduce((a, b) => a + b, 0) / (s.slowHours.length || 1);
+            timingHint = `평균 ${avgH.toFixed(1)}시간 전 섭취 (장내 가스/FODMAP 반응)`;
           } else {
             patternType = 'acute';
             patternBadge = '⚡ 급성 자극';
-            timingHint = '섭취 직후(1~3시간) 빠른 발병 (유당/매운맛/장반사)';
+            badgeColor = (riskRate >= 75) ? 'bg-red-600 text-white border-red-700' : 'bg-rose-100 text-rose-700 border-rose-300';
+            const avgH = s.acuteHours.reduce((a, b) => a + b, 0) / (s.acuteHours.length || 1);
+            timingHint = `평균 ${avgH.toFixed(1)}시간 내 빠른 발병 (유당/매운맛/위대장반사)`;
           }
 
-          return { ...s, riskRate, patternType, patternBadge, timingHint };
+          return { ...s, riskRate, patternType, patternBadge, timingHint, badgeColor };
         })
         .sort((a, b) => (b.riskRate - a.riskRate) || (b.troubleCount - a.troubleCount));
 
-      // 안전 음식: 된똥/쾌변 직전에 먹고 설사 유발 혐의가 0회인 음식
+      // 안전 음식
       const safeList = statsArray
         .filter(s => s.goodCount > 0 && s.troubleCount === 0)
         .sort((a, b) => b.goodCount - a.goodCount);
@@ -1101,43 +1125,30 @@
       if (suspectList.length === 0) {
         suspectContainer.innerHTML = '<div class="text-xs text-emerald-600 bg-emerald-50 p-3 rounded-xl text-center font-medium">🎉 설사를 유발한 의심 음식이 아직 없습니다!</div>';
       } else {
-        suspectContainer.innerHTML = suspectList.map((item, idx) => {
-          let badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
-          if (item.patternType === 'delayed') {
-            badgeColor = 'bg-purple-100 text-purple-700 border-purple-300';
-          } else if (item.patternType === 'slow') {
-            badgeColor = 'bg-indigo-100 text-indigo-700 border-indigo-300';
-          } else if (item.riskRate >= 75) {
-            badgeColor = 'bg-red-600 text-white border-red-700';
-          } else if (item.riskRate >= 50) {
-            badgeColor = 'bg-orange-500 text-white border-orange-600';
-          }
-
-          return `
-            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
-                  <span class="font-bold text-sm text-slate-800">${item.name}</span>
-                </div>
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">
-                  ${item.patternBadge} (${item.riskRate}%)
-                </span>
+        suspectContainer.innerHTML = suspectList.map((item, idx) => `
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
+                <span class="font-bold text-sm text-slate-800">${item.name}</span>
               </div>
-              <div class="mt-2 text-xs text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span>🚨 설사 유발 <strong>${item.troubleCount}회</strong></span>
-                <span class="text-slate-300">|</span>
-                <span>✨ 쾌변 통과 <strong>${item.goodCount}회</strong></span>
-                <span class="text-slate-300">|</span>
-                <span class="text-slate-500 text-[11px]">${item.timingHint}</span>
-              </div>
-              <!-- 위험도 프로그레스 바 -->
-              <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
-                <div class="${item.patternType === 'delayed' ? 'bg-purple-500' : 'bg-rose-500'} h-1.5 rounded-full" style="width: ${item.riskRate}%"></div>
-              </div>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${item.badgeColor}">
+                ${item.patternBadge} (${item.riskRate}%)
+              </span>
             </div>
-          `;
-        }).join('');
+            <div class="mt-2 text-xs text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span>🚨 설사 유발 <strong>${item.troubleCount}회</strong></span>
+              <span class="text-slate-300">|</span>
+              <span>✨ 쾌변 통과 <strong>${item.goodCount}회</strong></span>
+              <span class="text-slate-300">|</span>
+              <span class="text-slate-500 text-[11px] font-medium"><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-0.5"></i> ${item.timingHint}</span>
+            </div>
+            <!-- 위험도 프로그레스 바 -->
+            <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
+              <div class="${item.patternType === 'delayed' ? 'bg-purple-500' : 'bg-rose-500'} h-1.5 rounded-full" style="width: ${item.riskRate}%"></div>
+            </div>
+          </div>
+        `).join('');
       }
 
       // 렌더링 - 안전 음식
@@ -1232,22 +1243,40 @@
                 </div>
               </div>
 
-              <!-- 섭취 식사 내역 (실제 입력된 끼니만 깔끔하게 표시) -->
+              <!-- 섭취 식사 내역 (실제 입력된 끼니 및 시간차 표시) -->
               ${(() => {
+                const bDate = new Date(item.timestamp);
+                const allMeals = getMeals();
+                
+                // 타임라인 등록 식사 매칭
+                const matchedMeals = allMeals.filter(m => {
+                  const mDate = new Date(m.timestamp);
+                  const diffMs = bDate - mDate;
+                  return diffMs >= 0 && diffMs <= (36 * 3600 * 1000);
+                });
+
                 if (prev2.length === 0 && prev3.length === 0) {
+                  let timeBadge = '직전 식사';
+                  if (matchedMeals[0] && prev1.some(f => matchedMeals[0].foods.includes(f))) {
+                    const elapsedH = Math.max(0.1, (bDate - new Date(matchedMeals[0].timestamp)) / 3600000);
+                    timeBadge = `${formatElapsedHoursText(elapsedH)} 섭취`;
+                  }
                   return `
                     <div class="mt-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-                      <span class="text-[11px] font-bold text-orange-700 bg-orange-100/80 px-2 py-0.5 rounded shrink-0">섭취 식사</span>
+                      <span class="text-[11px] font-bold text-orange-700 bg-orange-100/80 px-2 py-0.5 rounded shrink-0">${timeBadge}</span>
                       <span class="text-xs font-semibold text-slate-800">${prev1.length > 0 ? prev1.join(', ') : '식사 기록 없음'}</span>
                     </div>
                   `;
                 } else {
                   return `
                     <div class="mt-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex flex-col gap-1.5">
-                      <div class="font-semibold text-slate-500 text-[11px]">섭취 식사 내역:</div>
-                      ${prev1.length > 0 ? `<div class="text-slate-800 text-xs font-medium flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">1</span> ${prev1.join(', ')}</div>` : ''}
-                      ${prev2.length > 0 ? `<div class="text-slate-700 text-xs flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-bold">2</span> ${prev2.join(', ')}</div>` : ''}
-                      ${prev3.length > 0 ? `<div class="text-slate-700 text-xs flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-bold">3</span> ${prev3.join(', ')}</div>` : ''}
+                      <div class="font-semibold text-slate-500 text-[11px] flex items-center justify-between">
+                        <span>섭취 식사 내역:</span>
+                        <span class="text-[10px] text-slate-400 font-normal">⏱️ 배변 이전 시간차 순차 분석</span>
+                      </div>
+                      ${prev1.length > 0 ? `<div class="text-slate-800 text-xs font-medium flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">1</span> ${prev1.join(', ')} <span class="text-[10px] text-slate-400 font-normal">(${matchedMeals[0] ? formatElapsedHoursText(Math.max(0.1, (bDate - new Date(matchedMeals[0].timestamp)) / 3600000)) : '직전 식사'})</span></div>` : ''}
+                      ${prev2.length > 0 ? `<div class="text-slate-700 text-xs flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-bold">2</span> ${prev2.join(', ')} <span class="text-[10px] text-purple-600 font-normal">(${matchedMeals[1] ? formatElapsedHoursText(Math.max(0.1, (bDate - new Date(matchedMeals[1].timestamp)) / 3600000)) : '지연성 잠복기 구간'})</span></div>` : ''}
+                      ${prev3.length > 0 ? `<div class="text-slate-700 text-xs flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-bold">3</span> ${prev3.join(', ')} <span class="text-[10px] text-slate-400 font-normal">(${matchedMeals[2] ? formatElapsedHoursText(Math.max(0.1, (bDate - new Date(matchedMeals[2].timestamp)) / 3600000)) : '소화 지연 구간'})</span></div>` : ''}
                     </div>
                   `;
                 }
