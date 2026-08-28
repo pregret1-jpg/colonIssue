@@ -137,7 +137,10 @@
               </label>
               <span class="text-[10px] text-slate-400">가장 최근 먹은 음식</span>
             </div>
-            <input type="text" id="prevMeal1" required placeholder="예: 삶은계란, 아몬드" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none font-medium" />
+            <div class="relative flex items-center">
+              <input type="text" id="prevMeal1" required placeholder="예: 삶은계란, 아몬드" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none font-medium" />
+              <button type="button" onclick="clearInput('prevMeal1')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            </div>
           </div>
 
           <!-- 2끼 전 (기본 숨김, 추가 버튼으로 노출) -->
@@ -149,7 +152,10 @@
               </label>
               <button type="button" onclick="removeMealSlot(2)" class="text-[11px] text-rose-500 hover:text-rose-700 font-medium">✕ 삭제</button>
             </div>
-            <input type="text" id="prevMeal2" placeholder="예: 순대국, 밥" class="w-full text-sm px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
+            <div class="relative flex items-center">
+              <input type="text" id="prevMeal2" placeholder="예: 순대국, 밥" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
+              <button type="button" onclick="clearInput('prevMeal2')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            </div>
           </div>
 
           <!-- 3끼 전 (기본 숨김, 추가 버튼으로 노출) -->
@@ -161,7 +167,10 @@
               </label>
               <button type="button" onclick="removeMealSlot(3)" class="text-[11px] text-rose-500 hover:text-rose-700 font-medium">✕ 삭제</button>
             </div>
-            <input type="text" id="prevMeal3" placeholder="예: 토스트, 우유" class="w-full text-sm px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
+            <div class="relative flex items-center">
+              <input type="text" id="prevMeal3" placeholder="예: 토스트, 우유" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
+              <button type="button" onclick="clearInput('prevMeal3')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            </div>
           </div>
 
           <!-- 이전 식사 추가 버튼 -->
@@ -186,7 +195,10 @@
         <!-- 증상 메모 -->
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">메모 (선택)</label>
-          <input type="text" id="bowelMemo" placeholder="예: 아침부터 아랫배 찌르는 느낌, 가스 많이 참" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+          <div class="relative flex items-center">
+            <input type="text" id="bowelMemo" placeholder="예: 아침부터 아랫배 찌르는 느낌, 가스 많이 참" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('bowelMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+          </div>
         </div>
 
         <!-- 저장 버튼 -->
@@ -226,14 +238,20 @@
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">
             음식 명칭 <span class="text-rose-500 font-bold">*</span> (쉼표로 구분)
           </label>
-          <input type="text" id="mealFoods" required placeholder="예: 삼겹살, 비빔냉면, 콜라" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+          <div class="relative flex items-center">
+            <input type="text" id="mealFoods" required placeholder="예: 삼겹살, 비빔냉면, 콜라" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('mealFoods')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+          </div>
           <p class="text-[11px] text-slate-400 mt-1">여러 메뉴를 함께 드셨다면 쉼표(,)로 구분해 적어주세요.</p>
         </div>
 
         <!-- 식사 메모 -->
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">메모 (선택)</label>
-          <input type="text" id="mealMemo" placeholder="예: 회사 점심, 조금 맵게 먹음" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+          <div class="relative flex items-center">
+            <input type="text" id="mealMemo" placeholder="예: 회사 점심, 조금 맵게 먹음" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('mealMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+          </div>
         </div>
 
         <!-- 등록 버튼 -->
@@ -397,11 +415,17 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">음식 명칭 (쉼표로 구분)</label>
-          <input type="text" id="editMealFoods" required placeholder="예: 삼겹살, 냉면" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+          <div class="relative flex items-center">
+            <input type="text" id="editMealFoods" required placeholder="예: 삼겹살, 냉면" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('editMealFoods')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+          </div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">메모 (선택)</label>
-          <input type="text" id="editMealMemo" placeholder="메모" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+          <div class="relative flex items-center">
+            <input type="text" id="editMealMemo" placeholder="메모" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('editMealMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+          </div>
         </div>
         <div class="flex items-center gap-2 pt-2 border-t border-slate-100 mt-1">
           <button type="button" onclick="closeEditMealModal()" class="flex-1 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">취소</button>
@@ -452,21 +476,30 @@
           </div>
           <div>
             <label class="block text-[11px] text-orange-600 font-medium mb-1">[1끼 전] 직전 식사</label>
-            <input type="text" id="editPrevMeal1" placeholder="예: 삶은계란, 아몬드" class="w-full text-sm px-3 py-1.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+            <div class="relative flex items-center">
+              <input type="text" id="editPrevMeal1" placeholder="예: 삶은계란, 아몬드" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+              <button type="button" onclick="clearInput('editPrevMeal1')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            </div>
           </div>
           <div id="wrapperEditMeal2" class="hidden bg-slate-50 p-2.5 rounded-xl border border-slate-200">
             <div class="flex items-center justify-between mb-1">
               <label class="text-[11px] text-slate-600 font-medium">[2끼 전]</label>
               <button type="button" onclick="removeEditMealSlot(2)" class="text-[10px] text-rose-500 hover:text-rose-700 font-medium">✕ 삭제</button>
             </div>
-            <input type="text" id="editPrevMeal2" placeholder="예: 순대국, 밥" class="w-full text-sm px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
+            <div class="relative flex items-center">
+              <input type="text" id="editPrevMeal2" placeholder="예: 순대국, 밥" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
+              <button type="button" onclick="clearInput('editPrevMeal2')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            </div>
           </div>
           <div id="wrapperEditMeal3" class="hidden bg-slate-50 p-2.5 rounded-xl border border-slate-200">
             <div class="flex items-center justify-between mb-1">
               <label class="text-[11px] text-slate-600 font-medium">[3끼 전]</label>
               <button type="button" onclick="removeEditMealSlot(3)" class="text-[10px] text-rose-500 hover:text-rose-700 font-medium">✕ 삭제</button>
             </div>
-            <input type="text" id="editPrevMeal3" placeholder="예: 토스트, 우유" class="w-full text-sm px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
+            <div class="relative flex items-center">
+              <input type="text" id="editPrevMeal3" placeholder="예: 토스트, 우유" class="clearable-input w-full text-sm px-3 pr-8 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:outline-none bg-white" />
+              <button type="button" onclick="clearInput('editPrevMeal3')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            </div>
           </div>
           <button type="button" id="btnEditAddMealSlot" onclick="addNextEditMealSlot()" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium border border-slate-200 flex items-center justify-center gap-1 transition">
             <i class="fa-solid fa-plus text-slate-400"></i>
@@ -475,7 +508,10 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">메모 (선택)</label>
-          <input type="text" id="editBowelMemo" placeholder="증상 또는 특이사항 메모" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+          <div class="relative flex items-center">
+            <input type="text" id="editBowelMemo" placeholder="증상 또는 특이사항 메모" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('editBowelMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+          </div>
         </div>
         <div class="flex items-center gap-2 pt-2 border-t border-slate-100 mt-1">
           <button type="button" onclick="closeEditBowelModal()" class="flex-1 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">취소</button>
@@ -525,11 +561,45 @@
       return now.toISOString().slice(0, 16);
     }
 
+    // =================================================================
+    // 텍스트 전체 지우기(X) 헬퍼
+    // =================================================================
+    function updateClearBtn(input) {
+      if (!input) return;
+      const btn = input.parentElement?.querySelector('.clear-btn');
+      if (!btn) return;
+      if (input.value && input.value.length > 0) {
+        btn.classList.remove('hidden');
+      } else {
+        btn.classList.add('hidden');
+      }
+    }
+
+    function clearInput(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      input.value = '';
+      updateClearBtn(input);
+      input.focus();
+    }
+
+    function refreshAllClearBtns() {
+      document.querySelectorAll('.clearable-input').forEach(input => {
+        updateClearBtn(input);
+      });
+    }
+
     // 초기화
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('bowelTime').value = getNowLocalString();
       document.getElementById('mealTime').value = getNowLocalString();
-      document.getElementById('bowelTime').addEventListener('change', updatePrevBowelBanner);
+
+      // clearable-input 실시간 이벤트 바인딩
+      document.querySelectorAll('.clearable-input').forEach(input => {
+        input.addEventListener('input', () => updateClearBtn(input));
+        input.addEventListener('focus', () => updateClearBtn(input));
+      });
+
       renderAll();
     });
 
@@ -583,10 +653,8 @@
       if (tabId === 'tab-analysis') renderAnalysis();
       if (tabId === 'tab-manage') renderTimeline();
       if (tabId === 'tab-meal') renderRecentMeals();
-      if (tabId === 'tab-bowel') {
-        renderFrequentTags();
-        updatePrevBowelBanner();
-      }
+      if (tabId === 'tab-bowel') renderFrequentTags();
+      refreshAllClearBtns();
     }
 
     // 문자열에서 음식 키워드 분리 & 정규화
@@ -683,6 +751,7 @@
       document.getElementById('bowelTime').value = getNowLocalString();
       dismissNotice();
       renderAll();
+      refreshAllClearBtns();
       switchTab('tab-analysis');
     }
 
@@ -719,6 +788,7 @@
       const noticeText = document.getElementById('autoMatchText');
       noticeText.innerHTML = `<i class="fa-solid fa-circle-check text-amber-600 mr-1"></i> 이전 식사 기록 중 <strong>${Math.min(3, prevMeals.length)}끼</strong>를 불러왔습니다.`;
       notice.classList.remove('hidden');
+      refreshAllClearBtns();
     }
 
     function dismissNotice() {
@@ -758,6 +828,7 @@
       document.getElementById('mealMemo').value = '';
       document.getElementById('mealTime').value = getNowLocalString();
 
+      refreshAllClearBtns();
       renderRecentMeals();
       renderFrequentTags();
     }
@@ -826,6 +897,7 @@
       if (!current.includes(food)) {
         current.push(food);
         input.value = current.join(', ');
+        refreshAllClearBtns();
       }
     }
 
@@ -1174,6 +1246,7 @@
       document.getElementById('editMealTime').value = meal.timestamp;
       document.getElementById('editMealFoods').value = meal.foods.join(', ');
       document.getElementById('editMealMemo').value = meal.memo || '';
+      refreshAllClearBtns();
       document.getElementById('editMealModal').classList.remove('hidden');
     }
 
@@ -1286,6 +1359,7 @@
       }
 
       document.getElementById('editBowelMemo').value = bowel.memo || '';
+      refreshAllClearBtns();
       document.getElementById('editBowelModal').classList.remove('hidden');
     }
 
@@ -1333,6 +1407,7 @@
       renderFrequentTags();
       renderAnalysis();
       renderTimeline();
+      refreshAllClearBtns();
     }
 
     // 날짜 포맷팅
