@@ -31,11 +31,11 @@
       <div class="flex items-center gap-2">
         <span class="text-2xl">🩺</span>
         <div>
-          <h1 class="font-bold text-lg text-slate-900 leading-tight">장이슈 (Jang-Issue)</h1>
-          <p class="text-xs text-slate-500">식사 & 배변 트러블 원인 추적기</p>
+          <h1 class="font-bold text-xl text-slate-900 leading-tight">장이슈 (Jang-Issue)</h1>
+          <p class="text-sm text-slate-500">식사 & 배변 트러블 원인 추적기</p>
         </div>
       </div>
-      <button onclick="switchTab('tab-manage')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg font-medium border border-slate-300 flex items-center gap-1.5 transition">
+      <button onclick="switchTab('tab-manage')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-medium border border-slate-300 flex items-center gap-1.5 transition">
         <i class="fa-solid fa-gear text-slate-500"></i>
         <span>관리/백업</span>
       </button>
@@ -51,10 +51,10 @@
     <section id="tab-record" class="tab-content flex flex-col gap-4">
       <!-- 상단 모드 전환 세그먼트 버튼 -->
       <div class="bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs grid grid-cols-2 gap-1.5">
-        <button type="button" id="btnModeBowel" onclick="setRecordMode('bowel')" class="py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-amber-500 text-white shadow-sm">
+        <button type="button" id="btnModeBowel" onclick="setRecordMode('bowel')" class="py-3 px-3 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition bg-amber-500 text-white shadow-sm">
           <span>🚽 배변 기록</span>
         </button>
-        <button type="button" id="btnModeMeal" onclick="setRecordMode('meal')" class="py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200">
+        <button type="button" id="btnModeMeal" onclick="setRecordMode('meal')" class="py-3 px-3 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200">
           <span>🍚 식사 기록</span>
         </button>
       </div>
@@ -62,57 +62,57 @@
       <!-- 1) 배변 기록 폼 (섭취 식사 입력창 제거, 상태+시간+메모만 간결하게) -->
       <form id="bowelForm" onsubmit="handleSaveBowel(event)" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
         <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-4 rounded-xl shadow-xs">
-          <h2 class="font-bold text-sm flex items-center gap-1.5">
+          <h2 class="font-bold text-base flex items-center gap-1.5">
             <i class="fa-solid fa-toilet"></i> 지금 장 상태는 어떤가요?
           </h2>
-          <p class="text-[11px] text-amber-100 mt-1">
+          <p class="text-xs text-amber-100 mt-1">
             배변 상태만 등록하시면 이전에 등록해 둔 식사 타임라인과 자동 연동되어 잠복기를 계산합니다.
           </p>
         </div>
 
         <!-- 기록 일시 (현재 시간 자동 세팅) -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+          <label class="block text-sm font-semibold text-slate-600 mb-1.5">
             <i class="fa-regular fa-clock text-slate-400"></i> 배변 발생 일시
           </label>
-          <input type="datetime-local" id="bowelTime" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+          <input type="datetime-local" id="bowelTime" required class="w-full text-base px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
         </div>
 
         <!-- 배변 상태 선택 -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-2">
+          <label class="block text-sm font-semibold text-slate-600 mb-2">
             배변 상태 <span class="text-rose-500 font-bold">*</span>
           </label>
           <div class="grid grid-cols-2 gap-2">
             <label class="cursor-pointer border-2 border-rose-200 hover:border-rose-400 bg-rose-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
               <input type="radio" name="bowelStatus" value="설사" required class="w-4 h-4 text-rose-600 focus:ring-rose-500" />
               <div>
-                <div class="font-bold text-sm text-rose-700 flex items-center gap-1">🚨 설사</div>
-                <div class="text-[11px] text-rose-500">물설사 / 급박변</div>
+                <div class="font-bold text-base text-rose-700 flex items-center gap-1">🚨 설사</div>
+                <div class="text-xs text-rose-500">물설사 / 급박변</div>
               </div>
             </label>
 
             <label class="cursor-pointer border-2 border-amber-200 hover:border-amber-400 bg-amber-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
               <input type="radio" name="bowelStatus" value="묽은변" class="w-4 h-4 text-amber-600 focus:ring-amber-500" />
               <div>
-                <div class="font-bold text-sm text-amber-700 flex items-center gap-1">💧 묽은변</div>
-                <div class="text-[11px] text-amber-600">진흙변 / 복통 동반</div>
+                <div class="font-bold text-base text-amber-700 flex items-center gap-1">💧 묽은변</div>
+                <div class="text-xs text-amber-600">진흙변 / 복통 동반</div>
               </div>
             </label>
 
             <label class="cursor-pointer border-2 border-emerald-200 hover:border-emerald-400 bg-emerald-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
               <input type="radio" name="bowelStatus" value="된똥" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500" />
               <div>
-                <div class="font-bold text-sm text-emerald-700 flex items-center gap-1">✨ 황금된똥</div>
-                <div class="text-[11px] text-emerald-600">바나나변 / 쾌변</div>
+                <div class="font-bold text-base text-emerald-700 flex items-center gap-1">✨ 황금된똥</div>
+                <div class="text-xs text-emerald-600">바나나변 / 쾌변</div>
               </div>
             </label>
 
             <label class="cursor-pointer border-2 border-slate-200 hover:border-slate-400 bg-slate-50 p-3 rounded-xl flex items-center gap-2.5 transition">
               <input type="radio" name="bowelStatus" value="단단한변" class="w-4 h-4 text-slate-600 focus:ring-slate-500" />
               <div>
-                <div class="font-bold text-sm text-slate-700 flex items-center gap-1">🧱 단단한변</div>
-                <div class="text-[11px] text-slate-500">토끼똥 / 변비</div>
+                <div class="font-bold text-base text-slate-700 flex items-center gap-1">🧱 단단한변</div>
+                <div class="text-xs text-slate-500">토끼똥 / 변비</div>
               </div>
             </label>
           </div>
@@ -120,15 +120,15 @@
 
         <!-- 증상 메모 -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">증상 메모 (선택)</label>
+          <label class="block text-sm font-semibold text-slate-600 mb-1.5">증상 메모 (선택)</label>
           <div class="relative flex items-center">
-            <input type="text" id="bowelMemo" placeholder="예: 아침부터 아랫배 찌르는 느낌, 가스 많이 참" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-            <button type="button" onclick="clearInput('bowelMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            <input type="text" id="bowelMemo" placeholder="예: 아침부터 아랫배 찌르는 느낌, 가스 많이 참" class="clearable-input w-full text-base px-3.5 pr-9 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('bowelMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-xs flex items-center justify-center transition" title="전체 지우기">✕</button>
           </div>
         </div>
 
         <!-- 저장 버튼 -->
-        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
+        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-base py-3.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-floppy-disk"></i>
           <span>배변 기록 저장</span>
         </button>
@@ -137,55 +137,55 @@
       <!-- 2) 식사 기록 폼 -->
       <form id="mealForm" onsubmit="handleSaveMeal(event)" class="hidden bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
         <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 rounded-xl shadow-xs">
-          <h2 class="font-bold text-sm flex items-center gap-1.5">
+          <h2 class="font-bold text-base flex items-center gap-1.5">
             <i class="fa-solid fa-utensils"></i> 식사 기록 등록
           </h2>
-          <p class="text-[11px] text-emerald-100 mt-1">
+          <p class="text-xs text-emerald-100 mt-1">
             식사할 때마다 시간과 메뉴를 등록해두시면 배변 발생 시 자동으로 시간차가 계산됩니다.
           </p>
         </div>
 
         <!-- 식사 일시 (현재 시간 자동 세팅) -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+          <label class="block text-sm font-semibold text-slate-600 mb-1.5">
             <i class="fa-regular fa-clock text-slate-400"></i> 식사 일시
           </label>
-          <input type="datetime-local" id="mealTime" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+          <input type="datetime-local" id="mealTime" required class="w-full text-base px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
         </div>
 
         <!-- 음식명 입력 -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+          <label class="block text-sm font-semibold text-slate-600 mb-1.5">
             음식 명칭 <span class="text-rose-500 font-bold">*</span> (쉼표로 구분)
           </label>
           <div class="relative flex items-center">
-            <input type="text" id="mealFoods" required placeholder="예: 삼겹살, 비빔냉면, 콜라" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
-            <button type="button" onclick="clearInput('mealFoods')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            <input type="text" id="mealFoods" required placeholder="예: 삼겹살, 비빔냉면, 콜라" class="clearable-input w-full text-base px-3.5 pr-9 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('mealFoods')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-xs flex items-center justify-center transition" title="전체 지우기">✕</button>
           </div>
-          <p class="text-[11px] text-slate-400 mt-1">여러 메뉴를 함께 드셨다면 쉼표(,)로 구분해 적어주세요.</p>
+          <p class="text-xs text-slate-400 mt-1">여러 메뉴를 함께 드셨다면 쉼표(,)로 구분해 적어주세요.</p>
 
           <!-- 자주 먹은 음식 추천 태그 (식사 기록용) -->
           <div class="mt-2.5" id="mealFrequentTagsContainer">
-            <div class="text-[11px] text-slate-500 mb-1 flex items-center gap-1">
+            <div class="text-xs text-slate-500 mb-1.5 flex items-center gap-1">
               <i class="fa-solid fa-tags text-slate-400"></i> 클릭하여 음식명에 추가:
             </div>
             <div id="mealFrequentTagsList" class="flex flex-wrap gap-1.5">
-              <span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>
+              <span class="text-xs text-slate-400">등록된 음식 내역이 없습니다.</span>
             </div>
           </div>
         </div>
 
         <!-- 식사 메모 -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">메모 (선택)</label>
+          <label class="block text-sm font-semibold text-slate-600 mb-1.5">메모 (선택)</label>
           <div class="relative flex items-center">
-            <input type="text" id="mealMemo" placeholder="예: 회사 점심, 조금 맵게 먹음" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
-            <button type="button" onclick="clearInput('mealMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            <input type="text" id="mealMemo" placeholder="예: 회사 점심, 조금 맵게 먹음" class="clearable-input w-full text-base px-3.5 pr-9 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('mealMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-xs flex items-center justify-center transition" title="전체 지우기">✕</button>
           </div>
         </div>
 
         <!-- 등록 버튼 -->
-        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base py-3.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-plus"></i>
           <span>식사 기록 등록</span>
         </button>
@@ -200,29 +200,29 @@
       <!-- 통계 개요 카드 -->
       <div class="grid grid-cols-4 gap-2">
         <div class="bg-white p-2.5 rounded-2xl border border-slate-200 text-center shadow-sm">
-          <div class="text-[10px] text-slate-500">배변 기록</div>
-          <div id="statTotalBowels" class="text-lg font-bold text-slate-800">0회</div>
+          <div class="text-xs text-slate-500 font-medium">배변 기록</div>
+          <div id="statTotalBowels" class="text-xl font-extrabold text-slate-800">0회</div>
         </div>
         <div class="bg-white p-2.5 rounded-2xl border border-rose-200 text-center shadow-sm">
-          <div class="text-[10px] text-rose-600 font-medium">🚨 설사/묽은변</div>
-          <div id="statTroubleBowels" class="text-lg font-bold text-rose-600">0회</div>
+          <div class="text-xs text-rose-600 font-semibold">🚨 설사/묽은변</div>
+          <div id="statTroubleBowels" class="text-xl font-extrabold text-rose-600">0회</div>
         </div>
         <div class="bg-white p-2.5 rounded-2xl border border-emerald-200 text-center shadow-sm">
-          <div class="text-[10px] text-emerald-600 font-medium">✨ 된똥/쾌변</div>
-          <div id="statGoodBowels" class="text-lg font-bold text-emerald-600">0회</div>
+          <div class="text-xs text-emerald-600 font-semibold">✨ 된똥/쾌변</div>
+          <div id="statGoodBowels" class="text-xl font-extrabold text-emerald-600">0회</div>
         </div>
         <div class="bg-white p-2.5 rounded-2xl border border-amber-200 text-center shadow-sm">
-          <div class="text-[10px] text-amber-700 font-medium">🍽️ 섭취 식사</div>
-          <div id="statUniqueMeals" class="text-lg font-bold text-amber-800">0끼</div>
+          <div class="text-xs text-amber-700 font-semibold">🍽️ 섭취 식사</div>
+          <div id="statUniqueMeals" class="text-xl font-extrabold text-amber-800">0끼</div>
         </div>
       </div>
 
       <!-- 의학적 잠복기 & 인과관계 분석 안내 배너 -->
-      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-3.5 rounded-2xl text-xs text-amber-900 flex items-start gap-2.5 shadow-2xs">
-        <span class="text-lg text-amber-600 mt-0.5">⏱️</span>
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-4 rounded-2xl text-sm text-amber-900 flex items-start gap-3 shadow-2xs">
+        <span class="text-xl text-amber-600 mt-0.5">⏱️</span>
         <div class="leading-relaxed">
-          <div class="font-bold text-amber-900 text-xs">의학적 잠복기 & 시차 추적 알고리즘 가동 중</div>
-          <div class="text-[11px] text-amber-800 mt-0.5">
+          <div class="font-bold text-amber-900 text-sm">의학적 잠복기 & 시차 추적 알고리즘 가동 중</div>
+          <div class="text-xs text-amber-800 mt-1">
             먹은 직후 발생하는 <strong>⚡ 급성 자극(1~3시간)</strong>과 전날 저녁 상한 음식 등의 <strong>⏳ 지연성 잠복기(8~18시간)</strong>를 구분하여 진짜 원인 음식을 찾아냅니다.
           </div>
         </div>
@@ -231,12 +231,12 @@
       <!-- 의심 음식 랭킹 (설사 유발) -->
       <div class="bg-white p-4 rounded-2xl border border-rose-200 shadow-sm">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-            <span class="text-rose-600 text-base">⚠️</span> 장 트러블 유발 의심 음식 TOP
+          <h3 class="font-bold text-base text-slate-900 flex items-center gap-1.5">
+            <span class="text-rose-600 text-lg">⚠️</span> 장 트러블 유발 의심 음식 TOP
           </h3>
-          <span class="text-[10px] text-rose-500 font-medium bg-rose-50 px-2 py-0.5 rounded-full">설사/묽은변 직전</span>
+          <span class="text-xs text-rose-500 font-semibold bg-rose-50 px-2.5 py-0.5 rounded-full">설사/묽은변 직전</span>
         </div>
-        <p class="text-xs text-slate-500 mb-3">
+        <p class="text-sm text-slate-500 mb-3">
           설사하기 전 3끼 식사에 자주 등장한 순서대로 위험도를 분석했습니다.
         </p>
 
@@ -248,10 +248,10 @@
       <!-- 안전 음식 (된똥일 때 자주 먹음) -->
       <div class="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-            <span class="text-emerald-600 text-base">🥦</span> 장에 안전했던 쾌변 음식 TOP
+          <h3 class="font-bold text-base text-slate-900 flex items-center gap-1.5">
+            <span class="text-emerald-600 text-lg">🥦</span> 장에 안전했던 쾌변 음식 TOP
           </h3>
-          <span class="text-[10px] text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full">황금변 직전</span>
+          <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full">황금변 직전</span>
         </div>
         <div id="safeFoodList" class="flex flex-col gap-2">
           <!-- JS 렌더링 -->
@@ -266,29 +266,29 @@
     <section id="tab-manage" class="tab-content hidden flex flex-col gap-4">
       <!-- 데이터 백업/복구 카드 -->
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3">
-        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+        <h3 class="font-bold text-base text-slate-800 flex items-center gap-1.5">
           <i class="fa-solid fa-database text-slate-500"></i> 데이터 백업 및 관리
         </h3>
-        <p class="text-xs text-slate-500">
+        <p class="text-sm text-slate-500">
           모든 기록은 현재 기기 브라우저에 안전하게 저장됩니다. 기기 변경이나 캐시 삭제에 대비해 파일로 백업할 수 있습니다.
         </p>
         
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="exportDataJSON()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 transition">
+          <button onclick="exportDataJSON()" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-3 rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 transition">
             <i class="fa-solid fa-download"></i> 백업 파일 저장 (JSON)
           </button>
           
-          <label class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 cursor-pointer transition">
+          <label class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-3 rounded-xl border border-slate-300 flex items-center justify-center gap-1.5 cursor-pointer transition">
             <i class="fa-solid fa-upload"></i> 백업 파일 복원
             <input type="file" id="importFileInput" accept=".json" onchange="importDataJSON(event)" class="hidden" />
           </label>
         </div>
 
         <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-          <button onclick="loadSampleData()" class="text-xs text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 font-medium transition">
+          <button onclick="loadSampleData()" class="text-sm text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 font-medium transition">
             <i class="fa-solid fa-vial"></i> 체험용 샘플 데이터 채우기
           </button>
-          <button onclick="clearAllData()" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 font-medium transition">
+          <button onclick="clearAllData()" class="text-sm text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 font-medium transition">
             전체 초기화
           </button>
         </div>
@@ -297,13 +297,13 @@
       <!-- 전체 타임라인 리스트 -->
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3">
         <div class="flex items-center justify-between">
-          <h3 class="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+          <h3 class="font-bold text-base text-slate-800 flex items-center gap-1.5">
             <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> 기록 히스토리 타임라인
           </h3>
-          <div class="flex items-center gap-1 text-xs">
-            <button onclick="filterTimeline('all')" id="btnFilterAll" class="px-2 py-0.5 rounded font-semibold bg-slate-800 text-white">전체</button>
-            <button onclick="filterTimeline('bowel')" id="btnFilterBowel" class="px-2 py-0.5 rounded text-slate-600 bg-slate-100">배변</button>
-            <button onclick="filterTimeline('meal')" id="btnFilterMeal" class="px-2 py-0.5 rounded text-slate-600 bg-slate-100">식사</button>
+          <div class="flex items-center gap-1.5 text-sm">
+            <button onclick="filterTimeline('all')" id="btnFilterAll" class="px-3 py-1 rounded-lg font-semibold bg-slate-800 text-white">전체</button>
+            <button onclick="filterTimeline('bowel')" id="btnFilterBowel" class="px-3 py-1 rounded-lg text-slate-600 bg-slate-100">배변</button>
+            <button onclick="filterTimeline('meal')" id="btnFilterMeal" class="px-3 py-1 rounded-lg text-slate-600 bg-slate-100">식사</button>
           </div>
         </div>
 
@@ -321,34 +321,34 @@
   <div id="editMealModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-utensils text-emerald-600"></i> 식사 기록 수정
         </h3>
-        <button type="button" onclick="closeEditMealModal()" class="text-slate-400 hover:text-slate-600 p-1 text-lg font-bold">✕</button>
+        <button type="button" onclick="closeEditMealModal()" class="text-slate-400 hover:text-slate-600 p-1 text-xl font-bold">✕</button>
       </div>
       <form id="editMealForm" onsubmit="handleSaveEditMeal(event)" class="flex flex-col gap-3">
         <input type="hidden" id="editMealId" />
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">식사 일시</label>
-          <input type="datetime-local" id="editMealTime" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+          <label class="block text-sm font-semibold text-slate-600 mb-1">식사 일시</label>
+          <input type="datetime-local" id="editMealTime" required class="w-full text-base px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">음식 명칭 (쉼표로 구분)</label>
+          <label class="block text-sm font-semibold text-slate-600 mb-1">음식 명칭 (쉼표로 구분)</label>
           <div class="relative flex items-center">
-            <input type="text" id="editMealFoods" required placeholder="예: 삼겹살, 냉면" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
-            <button type="button" onclick="clearInput('editMealFoods')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            <input type="text" id="editMealFoods" required placeholder="예: 삼겹살, 냉면" class="clearable-input w-full text-base px-3.5 pr-9 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('editMealFoods')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-xs flex items-center justify-center transition" title="전체 지우기">✕</button>
           </div>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">메모 (선택)</label>
+          <label class="block text-sm font-semibold text-slate-600 mb-1">메모 (선택)</label>
           <div class="relative flex items-center">
-            <input type="text" id="editMealMemo" placeholder="메모" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
-            <button type="button" onclick="clearInput('editMealMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            <input type="text" id="editMealMemo" placeholder="메모" class="clearable-input w-full text-base px-3.5 pr-9 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('editMealMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-xs flex items-center justify-center transition" title="전체 지우기">✕</button>
           </div>
         </div>
         <div class="flex items-center gap-2 pt-2 border-t border-slate-100 mt-1">
-          <button type="button" onclick="closeEditMealModal()" class="flex-1 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">취소</button>
-          <button type="submit" class="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">수정 저장</button>
+          <button type="button" onclick="closeEditMealModal()" class="flex-1 py-3 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition">취소</button>
+          <button type="submit" class="flex-1 py-3 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition">수정 저장</button>
         </div>
       </form>
     </div>
@@ -360,64 +360,64 @@
   <div id="editBowelModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-toilet text-amber-600"></i> 배변 기록 수정
         </h3>
-        <button type="button" onclick="closeEditBowelModal()" class="text-slate-400 hover:text-slate-600 p-1 text-lg font-bold">✕</button>
+        <button type="button" onclick="closeEditBowelModal()" class="text-slate-400 hover:text-slate-600 p-1 text-xl font-bold">✕</button>
       </div>
       <form id="editBowelForm" onsubmit="handleSaveEditBowel(event)" class="flex flex-col gap-3">
         <input type="hidden" id="editBowelId" />
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">발생 일시</label>
-          <input type="datetime-local" id="editBowelTime" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+          <label class="block text-sm font-semibold text-slate-600 mb-1">발생 일시</label>
+          <input type="datetime-local" id="editBowelTime" required class="w-full text-base px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">배변 상태</label>
+          <label class="block text-sm font-semibold text-slate-600 mb-1.5">배변 상태</label>
           <div class="grid grid-cols-2 gap-2">
-            <label class="cursor-pointer border-2 border-rose-200 hover:border-rose-400 bg-rose-50/50 p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold text-rose-700">
+            <label class="cursor-pointer border-2 border-rose-200 hover:border-rose-400 bg-rose-50/50 p-2.5 rounded-xl flex items-center gap-2 text-sm font-bold text-rose-700">
               <input type="radio" name="editBowelStatus" value="설사" required class="w-4 h-4 text-rose-600" /> 🚨 설사
             </label>
-            <label class="cursor-pointer border-2 border-amber-200 hover:border-amber-400 bg-amber-50/50 p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold text-amber-700">
+            <label class="cursor-pointer border-2 border-amber-200 hover:border-amber-400 bg-amber-50/50 p-2.5 rounded-xl flex items-center gap-2 text-sm font-bold text-amber-700">
               <input type="radio" name="editBowelStatus" value="묽은변" class="w-4 h-4 text-amber-600" /> 💧 묽은변
             </label>
-            <label class="cursor-pointer border-2 border-emerald-200 hover:border-emerald-400 bg-emerald-50/50 p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold text-emerald-700">
+            <label class="cursor-pointer border-2 border-emerald-200 hover:border-emerald-400 bg-emerald-50/50 p-2.5 rounded-xl flex items-center gap-2 text-sm font-bold text-emerald-700">
               <input type="radio" name="editBowelStatus" value="된똥" class="w-4 h-4 text-emerald-600" /> ✨ 황금된똥
             </label>
-            <label class="cursor-pointer border-2 border-slate-200 hover:border-slate-400 bg-slate-50 p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold text-slate-700">
+            <label class="cursor-pointer border-2 border-slate-200 hover:border-slate-400 bg-slate-50 p-2.5 rounded-xl flex items-center gap-2 text-sm font-bold text-slate-700">
               <input type="radio" name="editBowelStatus" value="단단한변" class="w-4 h-4 text-slate-600" /> 🧱 단단한변
             </label>
           </div>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">증상 메모 (선택)</label>
+          <label class="block text-sm font-semibold text-slate-600 mb-1">증상 메모 (선택)</label>
           <div class="relative flex items-center">
-            <input type="text" id="editBowelMemo" placeholder="증상 또는 특이사항 메모" class="clearable-input w-full text-sm px-3 pr-8 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
-            <button type="button" onclick="clearInput('editBowelMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-[11px] flex items-center justify-center transition" title="전체 지우기">✕</button>
+            <input type="text" id="editBowelMemo" placeholder="증상 또는 특이사항 메모" class="clearable-input w-full text-base px-3.5 pr-9 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+            <button type="button" onclick="clearInput('editBowelMemo')" class="clear-btn hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-800 text-xs flex items-center justify-center transition" title="전체 지우기">✕</button>
           </div>
         </div>
         <div class="flex items-center gap-2 pt-2 border-t border-slate-100 mt-1">
-          <button type="button" onclick="closeEditBowelModal()" class="flex-1 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">취소</button>
-          <button type="submit" class="flex-1 py-2.5 px-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition">수정 저장</button>
+          <button type="button" onclick="closeEditBowelModal()" class="flex-1 py-3 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition">취소</button>
+          <button type="submit" class="flex-1 py-3 px-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm transition">수정 저장</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- 하단 고정 탭 네비게이션 (3개로 간소화) -->
-  <nav class="fixed bottom-0 w-full max-w-lg bg-white border-t border-slate-200 z-30 shadow-lg flex justify-around py-2 px-2">
+  <nav class="fixed bottom-0 w-full max-w-lg bg-white border-t border-slate-200 z-30 shadow-lg flex justify-around py-2.5 px-2">
     <button onclick="switchTab('tab-record')" id="nav-record" class="nav-btn flex-1 flex flex-col items-center gap-1 text-amber-600 font-bold py-1 transition">
-      <i class="fa-solid fa-pen-to-square text-lg"></i>
-      <span class="text-[11px]">기록하기</span>
+      <i class="fa-solid fa-pen-to-square text-xl"></i>
+      <span class="text-xs font-semibold">기록하기</span>
     </button>
 
     <button onclick="switchTab('tab-analysis')" id="nav-analysis" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-medium py-1 transition">
-      <i class="fa-solid fa-chart-pie text-lg"></i>
-      <span class="text-[11px]">트러블 분석</span>
+      <i class="fa-solid fa-chart-pie text-xl"></i>
+      <span class="text-xs font-semibold">트러블 분석</span>
     </button>
 
     <button onclick="switchTab('tab-manage')" id="nav-manage" class="nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-medium py-1 transition">
-      <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-      <span class="text-[11px]">타임라인</span>
+      <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+      <span class="text-xs font-semibold">타임라인</span>
     </button>
   </nav>
 
@@ -515,14 +515,14 @@
       if (mode === 'bowel') {
         bowelForm.classList.remove('hidden');
         mealForm.classList.add('hidden');
-        btnBowel.className = 'py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-amber-500 text-white shadow-sm';
-        btnMeal.className = 'py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        btnBowel.className = 'py-3 px-3 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition bg-amber-500 text-white shadow-sm';
+        btnMeal.className = 'py-3 px-3 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200';
         document.getElementById('bowelTime').value = getNowLocalString();
       } else {
         mealForm.classList.remove('hidden');
         bowelForm.classList.add('hidden');
-        btnMeal.className = 'py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-emerald-600 text-white shadow-sm';
-        btnBowel.className = 'py-2.5 px-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        btnMeal.className = 'py-3 px-3 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition bg-emerald-600 text-white shadow-sm';
+        btnBowel.className = 'py-3 px-3 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition bg-slate-100 text-slate-600 hover:bg-slate-200';
         document.getElementById('mealTime').value = getNowLocalString();
         renderFrequentTags();
       }
@@ -656,24 +656,24 @@
       if (!container) return;
       const meals = getMeals().slice(0, 5);
       if (meals.length === 0) {
-        container.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">아직 등록된 식사 기록이 없습니다.</div>';
+        container.innerHTML = '<div class="text-sm text-slate-400 py-3 text-center">아직 등록된 식사 기록이 없습니다.</div>';
         return;
       }
 
       container.innerHTML = meals.map(m => `
-        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between">
           <div>
-            <div class="text-[11px] text-slate-500">${formatDateTime(m.timestamp)}</div>
-            <div class="text-sm font-semibold text-slate-800 flex flex-wrap gap-1 mt-0.5">
-              ${m.foods.map(f => `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-1.5 py-0.5 rounded-md font-medium">${f}</span>`).join('')}
+            <div class="text-xs text-slate-500 font-medium">${formatDateTime(m.timestamp)}</div>
+            <div class="text-base font-semibold text-slate-800 flex flex-wrap gap-1.5 mt-1">
+              ${m.foods.map(f => `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-sm px-2 py-0.5 rounded-md font-medium">${f}</span>`).join('')}
             </div>
-            ${m.memo ? `<div class="text-[11px] text-slate-400 mt-1"><i class="fa-regular fa-comment-dots"></i> ${m.memo}</div>` : ''}
+            ${m.memo ? `<div class="text-xs text-slate-400 mt-1.5"><i class="fa-regular fa-comment-dots"></i> ${m.memo}</div>` : ''}
           </div>
           <div class="flex items-center gap-1">
-            <button type="button" onclick="openEditMealModal('${m.id}')" class="text-slate-400 hover:text-amber-600 p-1 text-xs transition" title="수정">
+            <button type="button" onclick="openEditMealModal('${m.id}')" class="text-slate-400 hover:text-amber-600 p-1 text-sm transition" title="수정">
               <i class="fa-regular fa-pen-to-square"></i>
             </button>
-            <button type="button" onclick="deleteMeal('${m.id}')" class="text-slate-400 hover:text-rose-500 p-1 text-xs transition" title="삭제">
+            <button type="button" onclick="deleteMeal('${m.id}')" class="text-slate-400 hover:text-rose-500 p-1 text-sm transition" title="삭제">
               <i class="fa-regular fa-trash-can"></i>
             </button>
           </div>
@@ -703,10 +703,10 @@
       // 1) 배변 기록 탭의 태그 목록
       if (listEl) {
         if (sorted.length === 0) {
-          listEl.innerHTML = '<span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>';
+          listEl.innerHTML = '<span class="text-xs text-slate-400">등록된 음식 내역이 없습니다.</span>';
         } else {
           listEl.innerHTML = sorted.map(([food, count]) => `
-            <button type="button" onclick="appendTagToPrevMeal1('${food}')" class="badge-tag bg-slate-100 hover:bg-amber-100 hover:border-amber-300 text-slate-700 text-xs px-2 py-1 rounded-lg border border-slate-200 flex items-center gap-1 transition">
+            <button type="button" onclick="appendTagToPrevMeal1('${food}')" class="badge-tag bg-slate-100 hover:bg-amber-100 hover:border-amber-300 text-slate-700 text-sm px-2.5 py-1 rounded-lg border border-slate-200 flex items-center gap-1 transition">
               <span>+ ${food}</span>
             </button>
           `).join('');
@@ -716,10 +716,10 @@
       // 2) 평소 식사 기록 탭의 태그 목록
       if (mealListEl) {
         if (sorted.length === 0) {
-          mealListEl.innerHTML = '<span class="text-[11px] text-slate-400">등록된 음식 내역이 없습니다.</span>';
+          mealListEl.innerHTML = '<span class="text-xs text-slate-400">등록된 음식 내역이 없습니다.</span>';
         } else {
           mealListEl.innerHTML = sorted.map(([food, count]) => `
-            <button type="button" onclick="appendTagToMealFoods('${food}')" class="badge-tag bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 text-slate-700 text-xs px-2 py-1 rounded-lg border border-slate-200 flex items-center gap-1 transition">
+            <button type="button" onclick="appendTagToMealFoods('${food}')" class="badge-tag bg-slate-100 hover:bg-emerald-100 hover:border-emerald-300 text-slate-700 text-sm px-2.5 py-1 rounded-lg border border-slate-200 flex items-center gap-1 transition">
               <span>+ ${food}</span>
             </button>
           `).join('');
@@ -748,6 +748,38 @@
     }
 
     // =================================================================
+    // 헬퍼: 배변 이벤트와 인과관계가 유효한 섭취 식사 필터링 (의학적 소화·배출 Clearance 모델)
+    // =================================================================
+    function getValidMealsForBowel(b, allMeals, allBowels) {
+      const isTrouble = (b.status === '설사' || b.status === '묽은변');
+      const bDate = new Date(b.timestamp);
+
+      return allMeals.filter(m => {
+        const mDate = new Date(m.timestamp);
+        const elapsedHours = (bDate - mDate) / (3600 * 1000);
+        if (elapsedHours < 0.05 || elapsedHours > 36) return false;
+
+        // 설사/묽은변일 때: 식사 m과 배변 b 사이에 이미 정상 쾌변(된똥)이 있었는지 검사
+        if (isTrouble) {
+          const interveningGood = allBowels.find(prevB => {
+            if (prevB.status !== '된똥' && prevB.status !== '보통') return false;
+            const prevBDate = new Date(prevB.timestamp);
+            return prevBDate > mDate && prevBDate < bDate;
+          });
+
+          if (interveningGood) {
+            const hoursMealToGood = (new Date(interveningGood.timestamp) - mDate) / (3600 * 1000);
+            // 식사 후 16시간 이상 지나서 쾌변을 봤다면 그 변으로 이미 완전 배출 완료된 것으로 판단
+            if (hoursMealToGood >= 16.0) {
+              return false;
+            }
+          }
+        }
+        return true;
+      });
+    }
+
+    // =================================================================
     // 3. 트러블 원인 분석 로직 (실제 시간차 Timestamp & 의학적 잠복기 엔진)
     // =================================================================
     function renderAnalysis() {
@@ -768,8 +800,8 @@
 
       if (totalCount === 0) {
         if (statUniqueMealsEl) statUniqueMealsEl.innerText = `${meals.length}끼`;
-        suspectContainer.innerHTML = '<div class="text-xs text-slate-400 py-6 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
-        safeContainer.innerHTML = '<div class="text-xs text-slate-400 py-4 text-center">기록이 부족합니다.</div>';
+        suspectContainer.innerHTML = '<div class="text-sm text-slate-400 py-6 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
+        safeContainer.innerHTML = '<div class="text-sm text-slate-400 py-4 text-center">기록이 부족합니다.</div>';
         return;
       }
 
@@ -799,17 +831,13 @@
       let uniqueMealSignatures = new Set();
       meals.forEach(m => uniqueMealSignatures.add(`m_${m.id}`));
 
-      // 각 배변 이벤트별로 과거 36시간 이내의 식사를 시간차(hours)로 분석
+      // 각 배변 이벤트별로 유효 식사를 시간차(hours)로 분석
       bowels.forEach(b => {
         const isTrouble = (b.status === '설사' || b.status === '묽은변');
         const bDate = new Date(b.timestamp);
 
-        // 1) 평소 식사 기록(meals) 중 bDate 이전 36시간 이내 매칭
-        const matchedTimelineMeals = meals.filter(m => {
-          const mDate = new Date(m.timestamp);
-          const diffMs = bDate - mDate;
-          return diffMs >= 0 && diffMs <= (36 * 3600 * 1000);
-        });
+        // 1) 평소 식사 기록(meals) 중 의학적 유효 식사 필터링
+        const matchedTimelineMeals = getValidMealsForBowel(b, meals, bowels);
 
         // 2) 배변 카드에 직접 적힌 식사(prevMeals)도 수집
         const directMeal1 = b.prevMeals?.meal1 || [];
@@ -872,7 +900,7 @@
 
       const statsArray = Object.values(foodStats);
 
-      // 의심 음식: 설사/묽은변 원인 지목
+      // 의심 음식: 설사/묽은변 원인 지목 (의학적 잠복기 가중치 종합 랭킹)
       const suspectList = statsArray
         .filter(s => s.troubleCount > 0)
         .map(s => {
@@ -882,6 +910,7 @@
           let patternBadge = '';
           let timingHint = '';
           let badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
+          let causalityScore = 0;
 
           if (s.delayedCount > s.acuteCount && s.delayedCount >= s.slowCount) {
             patternType = 'delayed';
@@ -889,23 +918,26 @@
             badgeColor = 'bg-purple-100 text-purple-700 border-purple-300';
             const avgH = s.delayedHours.reduce((a, b) => a + b, 0) / (s.delayedHours.length || 1);
             timingHint = `평균 ${avgH.toFixed(1)}시간 전 섭취 (세균성/독소 잠복기 구간)`;
+            causalityScore = riskRate * 1.3 + s.delayedCount * 10;
           } else if (s.slowCount > s.acuteCount && s.slowCount > s.delayedCount) {
             patternType = 'slow';
             patternBadge = '🔄 소화 지연/발효';
             badgeColor = 'bg-indigo-100 text-indigo-700 border-indigo-300';
             const avgH = s.slowHours.reduce((a, b) => a + b, 0) / (s.slowHours.length || 1);
             timingHint = `평균 ${avgH.toFixed(1)}시간 전 섭취 (장내 가스/FODMAP 반응)`;
+            causalityScore = riskRate * 0.9 + s.slowCount * 5;
           } else {
             patternType = 'acute';
             patternBadge = '⚡ 급성 자극';
             badgeColor = (riskRate >= 75) ? 'bg-red-600 text-white border-red-700' : 'bg-rose-100 text-rose-700 border-rose-300';
             const avgH = s.acuteHours.reduce((a, b) => a + b, 0) / (s.acuteHours.length || 1);
             timingHint = `평균 ${avgH.toFixed(1)}시간 내 빠른 발병 (유당/매운맛/위대장반사)`;
+            causalityScore = riskRate * 1.2 + s.acuteCount * 8;
           }
 
-          return { ...s, riskRate, patternType, patternBadge, timingHint, badgeColor };
+          return { ...s, riskRate, patternType, patternBadge, timingHint, badgeColor, causalityScore };
         })
-        .sort((a, b) => (b.riskRate - a.riskRate) || (b.troubleCount - a.troubleCount));
+        .sort((a, b) => (b.causalityScore - a.causalityScore) || (b.riskRate - a.riskRate) || (b.troubleCount - a.troubleCount));
 
       // 안전 음식
       const safeList = statsArray
@@ -914,29 +946,29 @@
 
       // 렌더링 - 의심 음식
       if (suspectList.length === 0) {
-        suspectContainer.innerHTML = '<div class="text-xs text-emerald-600 bg-emerald-50 p-3 rounded-xl text-center font-medium">🎉 설사를 유발한 의심 음식이 아직 없습니다!</div>';
+        suspectContainer.innerHTML = '<div class="text-sm text-emerald-600 bg-emerald-50 p-3.5 rounded-xl text-center font-medium">🎉 설사를 유발한 의심 음식이 아직 없습니다!</div>';
       } else {
         suspectContainer.innerHTML = suspectList.map((item, idx) => `
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
-                <span class="font-bold text-sm text-slate-800">${item.name}</span>
+                <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
+                <span class="font-bold text-base text-slate-800">${item.name}</span>
               </div>
-              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${item.badgeColor}">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${item.badgeColor}">
                 ${item.patternBadge} (${item.riskRate}%)
               </span>
             </div>
-            <div class="mt-2 text-xs text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <div class="mt-2 text-sm text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span>🚨 설사 유발 <strong>${item.troubleCount}회</strong></span>
               <span class="text-slate-300">|</span>
               <span>✨ 쾌변 통과 <strong>${item.goodCount}회</strong></span>
               <span class="text-slate-300">|</span>
-              <span class="text-slate-500 text-[11px] font-medium"><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-0.5"></i> ${item.timingHint}</span>
+              <span class="text-slate-500 text-xs font-medium"><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-0.5"></i> ${item.timingHint}</span>
             </div>
             <!-- 위험도 프로그레스 바 -->
-            <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="${item.patternType === 'delayed' ? 'bg-purple-500' : 'bg-rose-500'} h-1.5 rounded-full" style="width: ${item.riskRate}%"></div>
+            <div class="w-full bg-slate-200 h-2 rounded-full mt-2.5 overflow-hidden">
+              <div class="${item.patternType === 'delayed' ? 'bg-purple-500' : 'bg-rose-500'} h-2 rounded-full" style="width: ${item.riskRate}%"></div>
             </div>
           </div>
         `).join('');
@@ -944,12 +976,12 @@
 
       // 렌더링 - 안전 음식
       if (safeList.length === 0) {
-        safeContainer.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">아직 쾌변 전용 안전 음식 데이터가 충분하지 않습니다.</div>';
+        safeContainer.innerHTML = '<div class="text-sm text-slate-400 py-3 text-center">아직 쾌변 전용 안전 음식 데이터가 충분하지 않습니다.</div>';
       } else {
         safeContainer.innerHTML = safeList.map(item => `
-          <div class="p-2.5 bg-emerald-50/50 border border-emerald-200 rounded-xl flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-800">✅ ${item.name}</span>
-            <span class="text-xs text-emerald-700 font-medium">황금된똥 직전 ${item.goodCount}회 안전 배출</span>
+          <div class="p-3 bg-emerald-50/50 border border-emerald-200 rounded-xl flex items-center justify-between">
+            <span class="text-sm font-bold text-slate-800">✅ ${item.name}</span>
+            <span class="text-sm text-emerald-700 font-medium">황금된똥 직전 ${item.goodCount}회 안전 배출</span>
           </div>
         `).join('');
       }
@@ -960,9 +992,9 @@
     // =================================================================
     function filterTimeline(filter) {
       timelineFilter = filter;
-      document.getElementById('btnFilterAll').className = (filter === 'all') ? 'px-2 py-0.5 rounded font-semibold bg-slate-800 text-white' : 'px-2 py-0.5 rounded text-slate-600 bg-slate-100';
-      document.getElementById('btnFilterBowel').className = (filter === 'bowel') ? 'px-2 py-0.5 rounded font-semibold bg-slate-800 text-white' : 'px-2 py-0.5 rounded text-slate-600 bg-slate-100';
-      document.getElementById('btnFilterMeal').className = (filter === 'meal') ? 'px-2 py-0.5 rounded font-semibold bg-slate-800 text-white' : 'px-2 py-0.5 rounded text-slate-600 bg-slate-100';
+      document.getElementById('btnFilterAll').className = (filter === 'all') ? 'px-3 py-1 rounded-lg font-semibold bg-slate-800 text-white' : 'px-3 py-1 rounded-lg text-slate-600 bg-slate-100';
+      document.getElementById('btnFilterBowel').className = (filter === 'bowel') ? 'px-3 py-1 rounded-lg font-semibold bg-slate-800 text-white' : 'px-3 py-1 rounded-lg text-slate-600 bg-slate-100';
+      document.getElementById('btnFilterMeal').className = (filter === 'meal') ? 'px-3 py-1 rounded-lg font-semibold bg-slate-800 text-white' : 'px-3 py-1 rounded-lg text-slate-600 bg-slate-100';
       renderTimeline();
     }
 
@@ -979,32 +1011,32 @@
       combined.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       if (combined.length === 0) {
-        container.innerHTML = '<div class="text-xs text-slate-400 py-8 text-center">등록된 기록이 없습니다.</div>';
+        container.innerHTML = '<div class="text-sm text-slate-400 py-8 text-center">등록된 기록이 없습니다.</div>';
         return;
       }
 
       container.innerHTML = combined.map(item => {
         if (item.type === 'meal') {
           return `
-            <div class="p-3 bg-white border-l-4 border-l-emerald-500 border border-slate-200 rounded-xl shadow-xs">
+            <div class="p-3.5 bg-white border-l-4 border-l-emerald-500 border border-slate-200 rounded-xl shadow-xs">
               <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md">
                   🍚 평소 식사
                 </span>
                 <div class="flex items-center gap-1">
-                  <span class="text-[11px] text-slate-400 mr-1">${formatDateTime(item.timestamp)}</span>
-                  <button type="button" onclick="openEditMealModal('${item.id}')" class="text-slate-400 hover:text-amber-600 p-1 text-xs transition" title="수정">
+                  <span class="text-xs text-slate-400 mr-1">${formatDateTime(item.timestamp)}</span>
+                  <button type="button" onclick="openEditMealModal('${item.id}')" class="text-slate-400 hover:text-amber-600 p-1 text-sm transition" title="수정">
                     <i class="fa-regular fa-pen-to-square"></i>
                   </button>
-                  <button type="button" onclick="deleteMeal('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1 text-xs transition" title="삭제">
+                  <button type="button" onclick="deleteMeal('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1 text-sm transition" title="삭제">
                     <i class="fa-regular fa-trash-can"></i>
                   </button>
                 </div>
               </div>
-              <div class="mt-1.5 flex flex-wrap gap-1">
-                ${item.foods.map(f => `<span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded-md font-medium">${f}</span>`).join('')}
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                ${item.foods.map(f => `<span class="bg-slate-100 text-slate-700 text-sm px-2.5 py-0.5 rounded-md font-medium">${f}</span>`).join('')}
               </div>
-              ${item.memo ? `<div class="text-xs text-slate-500 mt-1">📝 ${item.memo}</div>` : ''}
+              ${item.memo ? `<div class="text-sm text-slate-500 mt-1.5">📝 ${item.memo}</div>` : ''}
             </div>
           `;
         } else {
@@ -1018,56 +1050,53 @@
           const prev3 = item.prevMeals?.meal3 || [];
 
           return `
-            <div class="p-3 bg-white ${borderStyle} border border-slate-200 rounded-xl shadow-xs">
+            <div class="p-3.5 bg-white ${borderStyle} border border-slate-200 rounded-xl shadow-xs">
               <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${badgeStyle}">
+                <span class="text-xs font-bold px-2.5 py-1 rounded-md ${badgeStyle}">
                   ${item.status === '설사' ? '🚨' : item.status === '묽은변' ? '💧' : '✨'} ${item.status}
                 </span>
                 <div class="flex items-center gap-1">
-                  <span class="text-[11px] text-slate-400 mr-1">${formatDateTime(item.timestamp)}</span>
-                  <button type="button" onclick="openEditBowelModal('${item.id}')" class="text-slate-400 hover:text-amber-600 p-1 text-xs transition" title="수정">
+                  <span class="text-xs text-slate-400 mr-1">${formatDateTime(item.timestamp)}</span>
+                  <button type="button" onclick="openEditBowelModal('${item.id}')" class="text-slate-400 hover:text-amber-600 p-1 text-sm transition" title="수정">
                     <i class="fa-regular fa-pen-to-square"></i>
                   </button>
-                  <button type="button" onclick="deleteBowel('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1 text-xs transition" title="삭제">
+                  <button type="button" onclick="deleteBowel('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1 text-sm transition" title="삭제">
                     <i class="fa-regular fa-trash-can"></i>
                   </button>
                 </div>
               </div>
 
-              <!-- 섭취 식사 내역 (배변 시점 이전 36시간 식사 타임라인 자동 매칭 표시) -->
+              <!-- 섭취 식사 내역 (의학적 소화·배출 Clearance 모델 연동) -->
               ${(() => {
                 const bDate = new Date(item.timestamp);
                 const allMeals = getMeals();
+                const allBowels = getBowels();
                 
-                // 배변 시점 이전 36시간 이내의 식사 목록
-                const matchedMeals = allMeals.filter(m => {
-                  const mDate = new Date(m.timestamp);
-                  const diffMs = bDate - mDate;
-                  return diffMs >= 0 && diffMs <= (36 * 3600 * 1000);
-                });
+                // 배변 시점 이전의 유효 식사 목록
+                const matchedMeals = getValidMealsForBowel(item, allMeals, allBowels);
 
                 if (matchedMeals.length === 0) {
                   const legacy1 = item.prevMeals?.meal1 || [];
                   if (legacy1.length > 0) {
                     return `
-                      <div class="mt-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-                        <span class="text-[11px] font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded shrink-0">직전 식사</span>
-                        <span class="text-xs font-semibold text-slate-800">${legacy1.join(', ')}</span>
+                      <div class="mt-2 text-sm bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+                        <span class="text-xs font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded shrink-0">직전 식사</span>
+                        <span class="text-sm font-semibold text-slate-800">${legacy1.join(', ')}</span>
                       </div>
                     `;
                   }
                   return `
-                    <div class="mt-2 text-[11px] text-slate-400 bg-slate-50 p-2 rounded-xl border border-slate-100">
-                      ⏱️ 직전 36시간 내 등록된 식사 없음
+                    <div class="mt-2 text-xs text-slate-400 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                      ⏱️ 연동된 유효 섭취 식사 없음 (직전 쾌변으로 배출 완료)
                     </div>
                   `;
                 }
 
                 return `
-                  <div class="mt-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex flex-col gap-1.5">
-                    <div class="font-semibold text-slate-500 text-[11px] flex items-center justify-between">
+                  <div class="mt-2 text-sm bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex flex-col gap-1.5">
+                    <div class="font-semibold text-slate-500 text-xs flex items-center justify-between">
                       <span>⏱️ 연동 식사 타임라인 (${matchedMeals.length}끼):</span>
-                      <span class="text-[10px] text-amber-600 font-normal">시간차 자동 계산</span>
+                      <span class="text-xs text-amber-600 font-normal">시간차 자동 계산</span>
                     </div>
                     ${matchedMeals.map((m, mIdx) => {
                       const elapsedH = Math.max(0.1, (bDate - new Date(m.timestamp)) / 3600000);
@@ -1077,14 +1106,14 @@
                       const badgeLabel = isAcute ? '⚡급성' : isDelayed ? '⏳잠복기' : '🔄소화지연';
 
                       return `
-                        <div class="text-slate-800 text-xs flex items-center justify-between gap-1">
-                          <div class="flex items-center gap-1.5">
-                            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-bold">${mIdx + 1}</span>
+                        <div class="text-slate-800 text-sm flex items-center justify-between gap-1.5 py-0.5">
+                          <div class="flex items-center gap-2">
+                            <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-xs flex items-center justify-center font-bold shrink-0">${mIdx + 1}</span>
                             <span class="font-medium">${m.foods.join(', ')}</span>
                           </div>
-                          <div class="flex items-center gap-1">
-                            <span class="text-[10px] text-slate-400 font-normal">${formatElapsedHoursText(elapsedH)}</span>
-                            <span class="text-[9px] px-1.5 py-0.2 rounded font-bold ${badgeClass}">${badgeLabel}</span>
+                          <div class="flex items-center gap-1.5 shrink-0">
+                            <span class="text-xs text-slate-400 font-normal">${formatElapsedHoursText(elapsedH)}</span>
+                            <span class="text-xs px-2 py-0.5 rounded font-bold ${badgeClass}">${badgeLabel}</span>
                           </div>
                         </div>
                       `;
@@ -1093,7 +1122,7 @@
                 `;
               })()}
 
-              ${item.memo ? `<div class="text-xs text-slate-500 mt-2">📝 ${item.memo}</div>` : ''}
+              ${item.memo ? `<div class="text-sm text-slate-500 mt-2">📝 ${item.memo}</div>` : ''}
             </div>
           `;
         }
