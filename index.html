@@ -113,14 +113,28 @@
         <div class="pt-2 border-t border-slate-100">
           <div class="flex items-center justify-between mb-2">
             <div>
-              <span class="text-xs font-bold text-slate-800">이전 3끼 식사</span>
-              <p class="text-[11px] text-slate-500">직접 입력하거나 평소 기록에서 불러오세요</p>
+              <span class="text-xs font-bold text-slate-800">식사 내역 입력</span>
+              <p class="text-[11px] text-slate-500">1끼 전만 적으면 2·3끼는 직전 배변에서 자동 연동</p>
             </div>
-            <!-- 자동 매칭 버튼 -->
-            <button type="button" onclick="autoFillPrevMeals()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 font-semibold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
-              <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
-              <span>최근 3끼 자동 불러오기</span>
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="shiftFromPrevBowel()" id="btnShiftBowel" class="text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-300 font-semibold px-2 py-1.5 rounded-lg flex items-center gap-1 transition" title="직전 배변 기록에서 2,3끼 당겨오기">
+                <i class="fa-solid fa-angles-right text-orange-600"></i>
+                <span>직전 배변 이어받기</span>
+              </button>
+              <button type="button" onclick="autoFillPrevMeals()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 font-semibold px-2 py-1.5 rounded-lg flex items-center gap-1 transition">
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
+                <span>평소 식사 불러오기</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 직전 배변 상태 안내 배너 -->
+          <div id="prevBowelStatusCard" class="hidden bg-slate-50 border border-slate-200 text-slate-700 px-3 py-2 rounded-xl mb-2.5 text-xs flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span id="prevBowelIconText" class="font-bold text-slate-800"></span>
+              <span class="text-slate-400">|</span>
+              <span class="text-[11px] text-slate-500">새로 드신 1끼만 적으시면 됩니다.</span>
+            </div>
           </div>
 
           <div id="autoMatchNotice" class="hidden text-xs bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2 rounded-lg mb-2 flex items-center justify-between">
@@ -128,40 +142,41 @@
             <button type="button" onclick="dismissNotice()" class="text-amber-600 hover:text-amber-900 font-bold ml-2">✕</button>
           </div>
 
-          <!-- 1끼 전 -->
+          <!-- 1끼 전 (핵심 입력) -->
           <div class="mb-2.5">
             <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-medium text-slate-700 flex items-center gap-1">
-                <span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">1</span>
+              <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-bold">1</span>
                 <span>직전 식사 (1끼 전)</span>
+                <span class="text-rose-500 font-bold">*</span>
               </label>
-              <span class="text-[10px] text-slate-400">가장 최근 먹은 음식</span>
+              <span class="text-[10px] text-orange-600 font-semibold">직전 배변 이후 새로 먹은 음식</span>
             </div>
-            <input type="text" id="prevMeal1" placeholder="예: 짬뽕, 탕수육, 단무지" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+            <input type="text" id="prevMeal1" required placeholder="예: 삶은계란, 아몬드 (새로 먹은 음식)" class="w-full text-sm px-3 py-2 border-2 border-orange-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none bg-orange-50/20 font-medium" />
           </div>
 
-          <!-- 2끼 전 -->
+          <!-- 2끼 전 (자동 연동 지원) -->
           <div class="mb-2.5">
             <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-medium text-slate-700 flex items-center gap-1">
+              <label class="text-xs font-medium text-slate-600 flex items-center gap-1">
                 <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-bold">2</span>
                 <span>2끼 전 식사</span>
+                <span class="text-[10px] text-slate-400">(비워두면 직전 배변에서 자동 연동)</span>
               </label>
-              <span class="text-[10px] text-slate-400">그 전 식사</span>
             </div>
-            <input type="text" id="prevMeal2" placeholder="예: 아이스 카페라떼, 샌드위치" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+            <input type="text" id="prevMeal2" placeholder="비워두시면 직전 배변 식사가 자동 적용됩니다." class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none placeholder:text-slate-400 text-slate-700" />
           </div>
 
-          <!-- 3끼 전 -->
+          <!-- 3끼 전 (자동 연동 지원) -->
           <div class="mb-1">
             <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-medium text-slate-700 flex items-center gap-1">
+              <label class="text-xs font-medium text-slate-600 flex items-center gap-1">
                 <span class="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-bold">3</span>
                 <span>3끼 전 식사</span>
+                <span class="text-[10px] text-slate-400">(비워두면 직전 배변에서 자동 연동)</span>
               </label>
-              <span class="text-[10px] text-slate-400">그 전전 식사</span>
             </div>
-            <input type="text" id="prevMeal3" placeholder="예: 김치찌개, 백반, 계란말이" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
+            <input type="text" id="prevMeal3" placeholder="비워두시면 직전 배변 식사가 자동 적용됩니다." class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none placeholder:text-slate-400 text-slate-700" />
           </div>
 
           <!-- 자주 먹은 음식 추천 태그 -->
@@ -253,18 +268,33 @@
     <!-- ================================================================= -->
     <section id="tab-analysis" class="tab-content hidden flex flex-col gap-4">
       <!-- 통계 개요 카드 -->
-      <div class="grid grid-cols-3 gap-2">
-        <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
-          <div class="text-[11px] text-slate-500">배변 기록</div>
-          <div id="statTotalBowels" class="text-xl font-bold text-slate-800">0회</div>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 text-center shadow-sm">
+          <div class="text-[10px] text-slate-500">배변 기록</div>
+          <div id="statTotalBowels" class="text-lg font-bold text-slate-800">0회</div>
         </div>
-        <div class="bg-white p-3 rounded-2xl border border-rose-200 text-center shadow-sm">
-          <div class="text-[11px] text-rose-600 font-medium">🚨 설사/묽은변</div>
-          <div id="statTroubleBowels" class="text-xl font-bold text-rose-600">0회</div>
+        <div class="bg-white p-2.5 rounded-2xl border border-rose-200 text-center shadow-sm">
+          <div class="text-[10px] text-rose-600 font-medium">🚨 설사/묽은변</div>
+          <div id="statTroubleBowels" class="text-lg font-bold text-rose-600">0회</div>
         </div>
-        <div class="bg-white p-3 rounded-2xl border border-emerald-200 text-center shadow-sm">
-          <div class="text-[11px] text-emerald-600 font-medium">✨ 된똥/쾌변</div>
-          <div id="statGoodBowels" class="text-xl font-bold text-emerald-600">0회</div>
+        <div class="bg-white p-2.5 rounded-2xl border border-emerald-200 text-center shadow-sm">
+          <div class="text-[10px] text-emerald-600 font-medium">✨ 된똥/쾌변</div>
+          <div id="statGoodBowels" class="text-lg font-bold text-emerald-600">0회</div>
+        </div>
+        <div class="bg-white p-2.5 rounded-2xl border border-amber-200 text-center shadow-sm">
+          <div class="text-[10px] text-amber-700 font-medium">🍽️ 섭취 식사</div>
+          <div id="statUniqueMeals" class="text-lg font-bold text-amber-800">0끼</div>
+        </div>
+      </div>
+
+      <!-- 스마트 인과관계 분석 안내 배너 -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-3 rounded-2xl text-xs text-amber-900 flex items-start gap-2 shadow-2xs">
+        <span class="text-base text-amber-600 mt-0.5">🧠</span>
+        <div class="leading-relaxed">
+          <div class="font-bold text-amber-900">스마트 인과관계 추적 가동 중 (중복 집계 방지)</div>
+          <div class="text-[11px] text-amber-800 mt-0.5">
+            이미 된똥으로 정상 배출된 과거 식사는 묽은변 용의선상에서 <strong>자동 제외(무죄 판정)</strong>되어, 실제 트러블을 일으킨 새 음식만 정확히 짚어냅니다.
+          </div>
         </div>
       </div>
 
@@ -493,6 +523,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('bowelTime').value = getNowLocalString();
       document.getElementById('mealTime').value = getNowLocalString();
+      document.getElementById('bowelTime').addEventListener('change', updatePrevBowelBanner);
       renderAll();
     });
 
@@ -546,7 +577,10 @@
       if (tabId === 'tab-analysis') renderAnalysis();
       if (tabId === 'tab-manage') renderTimeline();
       if (tabId === 'tab-meal') renderRecentMeals();
-      if (tabId === 'tab-bowel') renderFrequentTags();
+      if (tabId === 'tab-bowel') {
+        renderFrequentTags();
+        updatePrevBowelBanner();
+      }
     }
 
     // 문자열에서 음식 키워드 분리 & 정규화
@@ -559,7 +593,7 @@
     }
 
     // =================================================================
-    // 1. 배변 기록 로직
+    // 1. 배변 기록 로직 (스마트 시프트 & 이어받기 지원)
     // =================================================================
     function handleSaveBowel(e) {
       e.preventDefault();
@@ -570,10 +604,34 @@
         return;
       }
       const status = statusInput.value;
-      const meal1 = parseFoodKeywords(document.getElementById('prevMeal1').value);
-      const meal2 = parseFoodKeywords(document.getElementById('prevMeal2').value);
-      const meal3 = parseFoodKeywords(document.getElementById('prevMeal3').value);
+      let meal1 = parseFoodKeywords(document.getElementById('prevMeal1').value);
+      let meal2 = parseFoodKeywords(document.getElementById('prevMeal2').value);
+      let meal3 = parseFoodKeywords(document.getElementById('prevMeal3').value);
       const memo = document.getElementById('bowelMemo').value.trim();
+
+      if (meal1.length === 0) {
+        alert('직전 배변 이후 새로 드신 식사(1끼 전)를 입력해주세요.');
+        return;
+      }
+
+      // 스마트 자동 시프트: meal2 또는 meal3가 비어있다면 직전 배변 기록에서 자동 당겨오기
+      const bowels = getBowels();
+      const bowelDate = new Date(time);
+      const prevBowel = bowels
+        .filter(b => new Date(b.timestamp) < bowelDate)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+      let autoShifted = false;
+      if (prevBowel && prevBowel.prevMeals) {
+        if (meal2.length === 0 && prevBowel.prevMeals.meal1 && prevBowel.prevMeals.meal1.length > 0) {
+          meal2 = [...prevBowel.prevMeals.meal1];
+          autoShifted = true;
+        }
+        if (meal3.length === 0 && prevBowel.prevMeals.meal2 && prevBowel.prevMeals.meal2.length > 0) {
+          meal3 = [...prevBowel.prevMeals.meal2];
+          autoShifted = true;
+        }
+      }
 
       const newBowel = {
         id: 'bowel_' + Date.now(),
@@ -587,19 +645,72 @@
         memo: memo
       };
 
-      const bowels = getBowels();
       bowels.unshift(newBowel);
-      // 시간순 정렬 (최신순)
       bowels.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       saveBowels(bowels);
 
-      alert(`[${status}] 배변 기록이 저장되었습니다!`);
+      const shiftMsg = autoShifted ? '\n(2·3끼는 직전 배변에서 자동 이어받아 중복 없이 저장되었습니다)' : '';
+      alert(`[${status}] 배변 기록이 저장되었습니다!${shiftMsg}`);
+
       // 폼 초기화
       document.getElementById('bowelForm').reset();
       document.getElementById('bowelTime').value = getNowLocalString();
       dismissNotice();
+      updatePrevBowelBanner();
       renderAll();
       switchTab('tab-analysis');
+    }
+
+    // 직전 배변 기록의 1, 2끼를 현재 2, 3끼로 당겨오기
+    function shiftFromPrevBowel() {
+      const time = document.getElementById('bowelTime').value;
+      const bowelDate = new Date(time);
+      const bowels = getBowels();
+      const prevBowel = bowels
+        .filter(b => new Date(b.timestamp) < bowelDate)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+      if (!prevBowel || !prevBowel.prevMeals) {
+        alert('이전 배변 기록이 없습니다. 평소 식사 기록을 이용하거나 직접 입력해주세요.');
+        return;
+      }
+
+      let count = 0;
+      if (prevBowel.prevMeals.meal1 && prevBowel.prevMeals.meal1.length > 0) {
+        document.getElementById('prevMeal2').value = prevBowel.prevMeals.meal1.join(', ');
+        count++;
+      }
+      if (prevBowel.prevMeals.meal2 && prevBowel.prevMeals.meal2.length > 0) {
+        document.getElementById('prevMeal3').value = prevBowel.prevMeals.meal2.join(', ');
+        count++;
+      }
+
+      const notice = document.getElementById('autoMatchNotice');
+      const noticeText = document.getElementById('autoMatchText');
+      noticeText.innerHTML = `<i class="fa-solid fa-angles-right text-orange-600 mr-1"></i> 직전 배변(${formatDateTime(prevBowel.timestamp)} [${prevBowel.status}])의 식사를 2·3끼로 이어받았습니다.`;
+      notice.classList.remove('hidden');
+    }
+
+    // 직전 배변 안내 배너 갱신
+    function updatePrevBowelBanner() {
+      const card = document.getElementById('prevBowelStatusCard');
+      const text = document.getElementById('prevBowelIconText');
+      if (!card || !text) return;
+
+      const time = document.getElementById('bowelTime').value;
+      const bowelDate = new Date(time);
+      const bowels = getBowels();
+      const prevBowel = bowels
+        .filter(b => new Date(b.timestamp) < bowelDate)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+      if (prevBowel) {
+        const icon = (prevBowel.status === '설사') ? '🚨' : (prevBowel.status === '묽은변' ? '💧' : (prevBowel.status === '된똥' ? '✨' : '🧱'));
+        text.innerHTML = `<span class="text-amber-800 font-bold">직전 배변: ${formatDateTime(prevBowel.timestamp)} [${icon} ${prevBowel.status}]</span>`;
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
     }
 
     // 자동 불러오기: 현재 설정된 배변 시각 이전의 최근 3개 식사 매칭
@@ -743,7 +854,7 @@
     }
 
     // =================================================================
-    // 3. 트러블 원인 분석 로직
+    // 3. 트러블 원인 분석 로직 (스마트 무죄 판정 & 중복 카운트 방지)
     // =================================================================
     function renderAnalysis() {
       const bowels = getBowels();
@@ -758,71 +869,130 @@
 
       const suspectContainer = document.getElementById('suspectFoodList');
       const safeContainer = document.getElementById('safeFoodList');
+      const statUniqueMealsEl = document.getElementById('statUniqueMeals');
 
       if (totalCount === 0) {
+        if (statUniqueMealsEl) statUniqueMealsEl.innerText = '0끼';
         suspectContainer.innerHTML = '<div class="text-xs text-slate-400 py-6 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
         safeContainer.innerHTML = '<div class="text-xs text-slate-400 py-4 text-center">기록이 부족합니다.</div>';
         return;
       }
 
-      // 음식별 통계 집계: troubleCount, goodCount, mealPositionCounts
+      // 시간 오름차순(과거 -> 최신) 정렬하여 인과관계 순차 추적
+      const chronologicalBowels = [...bowels].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+      // 음식별 통계 데이터 구조:
+      // { name, troubleCount, goodCount, totalExposure, meal1Count, meal2Count, meal3Count, exoneratedCount, isAcute }
       const foodStats = {};
 
-      bowels.forEach(b => {
+      function getStat(food) {
+        if (!foodStats[food]) {
+          foodStats[food] = {
+            name: food,
+            troubleCount: 0,
+            goodCount: 0,
+            totalExposure: 0,
+            meal1Count: 0,
+            meal2Count: 0,
+            meal3Count: 0,
+            exoneratedCount: 0,
+            isAcute: false
+          };
+        }
+        return foodStats[food];
+      }
+
+      // 순수 식사 끼니 수 추적 (중복 슬롯 제거)
+      let uniqueMealSignatures = new Set();
+
+      for (let i = 0; i < chronologicalBowels.length; i++) {
+        const b = chronologicalBowels[i];
         const isTrouble = (b.status === '설사' || b.status === '묽은변');
-        const foodsInThisLog = new Set();
-        const posMap = {};
+        const prevBowel = i > 0 ? chronologicalBowels[i - 1] : null;
 
-        ['meal1', 'meal2', 'meal3'].forEach(k => {
-          const list = (b.prevMeals && b.prevMeals[k]) ? b.prevMeals[k] : [];
-          list.forEach(f => {
-            foodsInThisLog.add(f);
-            posMap[f] = posMap[f] || [];
-            posMap[f].push(k);
+        const m1 = (b.prevMeals && b.prevMeals.meal1) ? b.prevMeals.meal1 : [];
+        const m2 = (b.prevMeals && b.prevMeals.meal2) ? b.prevMeals.meal2 : [];
+        const m3 = (b.prevMeals && b.prevMeals.meal3) ? b.prevMeals.meal3 : [];
+
+        // 고유 식사 카운트 (1끼전은 해당 시점의 고유 식사로 반드시 기록)
+        if (m1.length > 0) uniqueMealSignatures.add(`b_${b.id}_m1_${m1.sort().join('|')}`);
+        // 첫 번째 배변 기록인 경우 2끼전, 3끼전도 최초 식사로 카운트
+        if (i === 0) {
+          if (m2.length > 0) uniqueMealSignatures.add(`b_${b.id}_m2_${m2.sort().join('|')}`);
+          if (m3.length > 0) uniqueMealSignatures.add(`b_${b.id}_m3_${m3.sort().join('|')}`);
+        }
+
+        // 직전 배변에서 이미 정상 배출(된똥/보통)된 음식 목록 파악
+        const prevExoneratedFoods = new Set();
+        if (prevBowel && (prevBowel.status === '된똥' || prevBowel.status === '보통')) {
+          const pm1 = prevBowel.prevMeals?.meal1 || [];
+          const pm2 = prevBowel.prevMeals?.meal2 || [];
+          const pm3 = prevBowel.prevMeals?.meal3 || [];
+          [...pm1, ...pm2, ...pm3].forEach(f => prevExoneratedFoods.add(f));
+        }
+
+        // 1) 쾌변(된똥/보통)인 경우:
+        if (!isTrouble) {
+          const distinctInThisBowel = new Set([...m1, ...m2, ...m3]);
+          distinctInThisBowel.forEach(f => {
+            const st = getStat(f);
+            st.goodCount += 1;
+            st.totalExposure += 1;
           });
-        });
+        } 
+        // 2) 트러블(설사/묽은변)인 경우 (스마트 무죄 판정 적용):
+        else {
+          const currentTroubleFoods = new Set();
 
-        foodsInThisLog.forEach(f => {
-          if (!foodStats[f]) {
-            foodStats[f] = {
-              name: f,
-              troubleCount: 0,
-              goodCount: 0,
-              totalBowelOccurrences: 0,
-              meal1Count: 0,
-              meal2Count: 0,
-              meal3Count: 0
-            };
-          }
-          foodStats[f].totalBowelOccurrences += 1;
-          if (isTrouble) {
-            foodStats[f].troubleCount += 1;
-            // 식사 위치 카운트
-            if (posMap[f]) {
-              posMap[f].forEach(p => {
-                if (p === 'meal1') foodStats[f].meal1Count += 1;
-                if (p === 'meal2') foodStats[f].meal2Count += 1;
-                if (p === 'meal3') foodStats[f].meal3Count += 1;
-              });
+          // 1끼 전(새로 먹은 음식)은 직접 유발 요인으로 등록
+          m1.forEach(f => {
+            currentTroubleFoods.add(f);
+            const st = getStat(f);
+            st.meal1Count += 1;
+            if (prevBowel && (prevBowel.status === '된똥' || prevBowel.status === '보통')) {
+              st.isAcute = true; // 쾌변 직후 새 음식 섭취로 발병한 급성 트러블
             }
-          } else {
-            foodStats[f].goodCount += 1;
-          }
-        });
-      });
+          });
+
+          // 2끼 전, 3끼 전에 대해 무죄 판정 여부 확인
+          [...m2, ...m3].forEach(f => {
+            const st = getStat(f);
+            if (prevExoneratedFoods.has(f)) {
+              // 이미 직전 쾌변 때 배출 완료된 음식은 이번 설사 누명에서 제외 (무죄)
+              st.exoneratedCount += 1;
+            } else {
+              // 이전 배변도 설사였거나, 쾌변 시점에 없었던 음식은 의심 유지
+              currentTroubleFoods.add(f);
+              if (m2.includes(f)) st.meal2Count += 1;
+              if (m3.includes(f)) st.meal3Count += 1;
+            }
+          });
+
+          currentTroubleFoods.forEach(f => {
+            const st = getStat(f);
+            st.troubleCount += 1;
+            st.totalExposure += 1;
+          });
+        }
+      }
+
+      // 평소 식사 기록도 고유 식사 수에 반영
+      const meals = getMeals();
+      meals.forEach(m => uniqueMealSignatures.add(`meal_${m.id}`));
+      if (statUniqueMealsEl) statUniqueMealsEl.innerText = `${Math.max(uniqueMealSignatures.size, 1)}끼`;
 
       const statsArray = Object.values(foodStats);
 
-      // 의심 음식: 설사/묽은변 직전에 1회 이상 등장한 음식 (위험도 내림차순, 트러블 횟수 내림차순)
+      // 의심 음식: 설사/묽은변의 원인으로 지목된 음식
       const suspectList = statsArray
         .filter(s => s.troubleCount > 0)
         .map(s => {
-          const riskRate = Math.round((s.troubleCount / s.totalBowelOccurrences) * 100);
+          const riskRate = Math.round((s.troubleCount / (s.troubleCount + s.goodCount)) * 100);
           return { ...s, riskRate };
         })
         .sort((a, b) => (b.riskRate - a.riskRate) || (b.troubleCount - a.troubleCount));
 
-      // 안전 음식: 된똥/쾌변 직전에 자주 먹고, 설사는 유발하지 않은 음식
+      // 안전 음식: 된똥/쾌변 직전에 먹고 설사 유발 혐의가 0회인 음식
       const safeList = statsArray
         .filter(s => s.goodCount > 0 && s.troubleCount === 0)
         .sort((a, b) => b.goodCount - a.goodCount);
@@ -834,20 +1004,19 @@
         suspectContainer.innerHTML = suspectList.map((item, idx) => {
           let badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
           let warningText = '주의';
-          if (item.riskRate >= 75) {
+          if (item.isAcute || item.riskRate >= 75) {
             badgeColor = 'bg-red-600 text-white border-red-700';
-            warningText = '위험 (고확률)';
+            warningText = item.isAcute ? '🚨 급성 유발 (100%)' : `위험 (${item.riskRate}%)`;
           } else if (item.riskRate >= 50) {
             badgeColor = 'bg-orange-500 text-white border-orange-600';
-            warningText = '의심 (중등도)';
+            warningText = `의심 (${item.riskRate}%)`;
           }
 
-          // 주요 발생 위치 파악
           let timingHint = '직전 1~3끼';
-          if (item.meal1Count > item.meal2Count && item.meal1Count > item.meal3Count) {
-            timingHint = '주로 바로 직전(1끼 전) 섭취 후 발병';
-          } else if (item.meal2Count > item.meal1Count && item.meal2Count > item.meal3Count) {
-            timingHint = '섭취 후 1끼 지난 뒤(2끼 전) 발병';
+          if (item.isAcute || item.meal1Count > 0) {
+            timingHint = '직전 쾌변 이후 새로 섭취 후 급성 발병';
+          } else if (item.meal2Count > item.meal3Count) {
+            timingHint = '섭취 후 2끼 시점에 발병';
           }
 
           return `
@@ -858,7 +1027,7 @@
                   <span class="font-bold text-sm text-slate-800">${item.name}</span>
                 </div>
                 <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">
-                  ${warningText} (위험도 ${item.riskRate}%)
+                  ${warningText}
                 </span>
               </div>
               <div class="mt-2 text-xs text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -866,7 +1035,7 @@
                 <span class="text-slate-300">|</span>
                 <span>✨ 된똥 <strong>${item.goodCount}회</strong></span>
                 <span class="text-slate-300">|</span>
-                <span class="text-slate-500 text-[11px]"><i class="fa-solid fa-clock-rotate-left"></i> ${timingHint}</span>
+                <span class="text-slate-500 text-[11px]"><i class="fa-solid fa-bolt text-amber-500"></i> ${timingHint}</span>
               </div>
               <!-- 위험도 프로그레스 바 -->
               <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
@@ -881,12 +1050,20 @@
       if (safeList.length === 0) {
         safeContainer.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">아직 쾌변 전용 안전 음식 데이터가 충분하지 않습니다.</div>';
       } else {
-        safeContainer.innerHTML = safeList.map(item => `
-          <div class="p-2.5 bg-emerald-50/50 border border-emerald-200 rounded-xl flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-800">✅ ${item.name}</span>
-            <span class="text-xs text-emerald-700 font-medium">황금된똥 직전 ${item.goodCount}회 섭취</span>
-          </div>
-        `).join('');
+        safeContainer.innerHTML = safeList.map(item => {
+          const exoneratedBadge = item.exoneratedCount > 0 
+            ? `<span class="text-[10px] text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded font-bold">묽은변 누명 제외됨(${item.exoneratedCount}회)</span>` 
+            : '';
+          return `
+            <div class="p-2.5 bg-emerald-50/50 border border-emerald-200 rounded-xl flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-800">✅ ${item.name}</span>
+                ${exoneratedBadge}
+              </div>
+              <span class="text-xs text-emerald-700 font-medium">황금된똥 직전 ${item.goodCount}회 섭취</span>
+            </div>
+          `;
+        }).join('');
       }
     }
 
