@@ -32,7 +32,7 @@
         <span class="text-2xl">🩺</span>
         <div>
           <h1 class="font-bold text-xl text-slate-900 leading-tight">장이슈 (Jang-Issue)</h1>
-          <p class="text-sm text-slate-500">식사 & 배변 트러블 패턴 추적기</p>
+          <p class="text-sm text-slate-500">식사 & 배변 트러블 원인 추적기</p>
         </div>
       </div>
       <button onclick="switchTab('tab-manage')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-medium border border-slate-300 flex items-center gap-1.5 transition">
@@ -46,39 +46,9 @@
   <main class="w-full max-w-lg p-4 flex-1 flex flex-col gap-4">
 
     <!-- ================================================================= -->
-    <!-- 탭 1: 기록하기 (오늘의 요약 + 배변/식사 원클릭 모드 전환) -->
+    <!-- 탭 1: 기록하기 (배변 / 식사 원클릭 모드 전환) -->
     <!-- ================================================================= -->
     <section id="tab-record" class="tab-content flex flex-col gap-4">
-
-      <!-- 오늘의 장 상태 요약 대시보드 카드 -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-2.5">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📅</span>
-            <h2 class="font-bold text-sm text-slate-800">오늘의 장 상태 요약</h2>
-          </div>
-          <span class="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-medium" id="todayDateLabel">오늘</span>
-        </div>
-        <div class="grid grid-cols-4 gap-2 pt-0.5">
-          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2 text-center">
-            <div class="text-xs text-emerald-700 font-semibold">✨ 쾌변</div>
-            <div id="todayGoodCount" class="text-lg font-black text-emerald-800">0회</div>
-          </div>
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-2 text-center">
-            <div class="text-xs text-amber-700 font-semibold">🍚 식사</div>
-            <div id="todayMealCount" class="text-lg font-black text-amber-800">0끼</div>
-          </div>
-          <div class="bg-rose-50 border border-rose-200 rounded-xl p-2 text-center">
-            <div class="text-xs text-rose-700 font-semibold">🚨 트러블</div>
-            <div id="todayTroubleCount" class="text-lg font-black text-rose-800">0회</div>
-          </div>
-          <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center">
-            <div class="text-xs text-slate-600 font-semibold">🧱 단단함</div>
-            <div id="todayHardCount" class="text-lg font-black text-slate-700">0회</div>
-          </div>
-        </div>
-      </div>
-
       <!-- 상단 모드 전환 세그먼트 버튼 -->
       <div class="bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs grid grid-cols-2 gap-1.5">
         <button type="button" id="btnModeBowel" onclick="setRecordMode('bowel')" class="py-3 px-3 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition bg-amber-500 text-white shadow-sm">
@@ -89,14 +59,14 @@
         </button>
       </div>
 
-      <!-- 1) 배변 기록 폼 (브리스톨 척도 보조 설명 포함) -->
+      <!-- 1) 배변 기록 폼 (섭취 식사 입력창 제거, 상태+시간+메모만 간결하게) -->
       <form id="bowelForm" onsubmit="handleSaveBowel(event)" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
         <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-4 rounded-xl shadow-xs">
           <h2 class="font-bold text-base flex items-center gap-1.5">
             <i class="fa-solid fa-toilet"></i> 지금 장 상태는 어떤가요?
           </h2>
           <p class="text-xs text-amber-100 mt-1">
-            배변 상태를 등록하시면 이전 식사 타임라인과 자동 연동되어 소화·배출 시차(잠복기) 패턴을 분석합니다.
+            배변 상태만 등록하시면 이전에 등록해 둔 식사 타임라인과 자동 연동되어 잠복기를 계산합니다.
           </p>
         </div>
 
@@ -108,44 +78,41 @@
           <input type="datetime-local" id="bowelTime" required class="w-full text-base px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
         </div>
 
-        <!-- 배변 상태 선택 (브리스톨 대변 척도 안내 포함) -->
+        <!-- 배변 상태 선택 -->
         <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="block text-sm font-semibold text-slate-600">
-              배변 상태 <span class="text-rose-500 font-bold">*</span>
-            </label>
-            <span class="text-xs text-slate-400 font-normal">브리스톨 척도(Type 1~7) 기준</span>
-          </div>
+          <label class="block text-sm font-semibold text-slate-600 mb-2">
+            배변 상태 <span class="text-rose-500 font-bold">*</span>
+          </label>
           <div class="grid grid-cols-2 gap-2">
             <label class="cursor-pointer border-2 border-rose-200 hover:border-rose-400 bg-rose-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
-              <input type="radio" name="bowelStatus" value="설사" required class="w-4 h-4 text-rose-600 focus:ring-rose-500 shrink-0" />
+              <input type="radio" name="bowelStatus" value="설사" required class="w-4 h-4 text-rose-600 focus:ring-rose-500" />
               <div>
                 <div class="font-bold text-base text-rose-700 flex items-center gap-1">🚨 설사</div>
-                <div class="text-xs text-rose-500">물설사 / 급박변 (Type 7)</div>
+                <div class="text-xs text-rose-500">물설사 / 급박변</div>
               </div>
             </label>
 
             <label class="cursor-pointer border-2 border-amber-200 hover:border-amber-400 bg-amber-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
-              <input type="radio" name="bowelStatus" value="묽은변" class="w-4 h-4 text-amber-600 focus:ring-amber-500 shrink-0" />
+              <input type="radio" name="bowelStatus" value="묽은변" class="w-4 h-4 text-amber-600 focus:ring-amber-500" />
               <div>
                 <div class="font-bold text-base text-amber-700 flex items-center gap-1">💧 묽은변</div>
-                <div class="text-xs text-amber-600">진흙변 / 무른 형태 (Type 6)</div>
+                <div class="text-xs text-amber-600">진흙변 / 복통 동반</div>
               </div>
             </label>
 
             <label class="cursor-pointer border-2 border-emerald-200 hover:border-emerald-400 bg-emerald-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
-              <input type="radio" name="bowelStatus" value="된똥" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 shrink-0" />
+              <input type="radio" name="bowelStatus" value="된똥" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500" />
               <div>
                 <div class="font-bold text-base text-emerald-700 flex items-center gap-1">✨ 황금된똥</div>
-                <div class="text-xs text-emerald-600">바나나형 쾌변 (Type 3~4)</div>
+                <div class="text-xs text-emerald-600">바나나변 / 쾌변</div>
               </div>
             </label>
 
             <label class="cursor-pointer border-2 border-slate-200 hover:border-slate-400 bg-slate-50 p-3 rounded-xl flex items-center gap-2.5 transition">
-              <input type="radio" name="bowelStatus" value="단단한변" class="w-4 h-4 text-slate-600 focus:ring-slate-500 shrink-0" />
+              <input type="radio" name="bowelStatus" value="단단한변" class="w-4 h-4 text-slate-600 focus:ring-slate-500" />
               <div>
                 <div class="font-bold text-base text-slate-700 flex items-center gap-1">🧱 단단한변</div>
-                <div class="text-xs text-slate-500">토끼똥 / 변비 (Type 1~2)</div>
+                <div class="text-xs text-slate-500">토끼똥 / 변비</div>
               </div>
             </label>
           </div>
@@ -223,17 +190,11 @@
           <span>식사 기록 등록</span>
         </button>
       </form>
-
-      <!-- 프라이버시 안심 안내 배지 -->
-      <div class="flex items-center justify-center gap-1.5 text-xs text-slate-400 py-1 text-center">
-        <i class="fa-solid fa-shield-halved text-emerald-600"></i>
-        <span>기록은 기기 브라우저에만 안전하게 저장되며 외부 서버로 전송되지 않습니다.</span>
-      </div>
     </section>
 
 
     <!-- ================================================================= -->
-    <!-- 탭 3: 트러블 연관 패턴 분석 (통계 & 동반 음식 랭킹) -->
+    <!-- 탭 3: 트러블 원인 분석 (통계 & 의심 음식 랭킹) -->
     <!-- ================================================================= -->
     <section id="tab-analysis" class="tab-content hidden flex flex-col gap-4">
       <!-- 통계 개요 카드 -->
@@ -256,35 +217,27 @@
         </div>
       </div>
 
-      <!-- 소화·배출 시차 & 동반 패턴 안내 배너 -->
+      <!-- 의학적 잠복기 & 인과관계 분석 안내 배너 -->
       <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-4 rounded-2xl text-sm text-amber-900 flex items-start gap-3 shadow-2xs">
         <span class="text-xl text-amber-600 mt-0.5">⏱️</span>
         <div class="leading-relaxed">
-          <div class="font-bold text-amber-900 text-sm">소화·배출 시차 & 동반 패턴 분석 알고리즘 가동 중</div>
+          <div class="font-bold text-amber-900 text-sm">의학적 잠복기 & 시차 추적 알고리즘 가동 중</div>
           <div class="text-xs text-amber-800 mt-1">
-            식사 섭취 후 경과 시간(<strong>⚡ 급성 1~4시간</strong> / <strong>⏳ 지연 잠복 4~18시간</strong> / <strong>🔄 발효 18~36시간</strong>)을 분석하여 트러블과 함께 나타난 음식의 연관 패턴을 찾아냅니다.
+            먹은 직후 발생하는 <strong>⚡ 급성 자극(1~3시간)</strong>과 전날 저녁 상한 음식 등의 <strong>⏳ 지연성 잠복기(8~18시간)</strong>를 구분하여 진짜 원인 음식을 찾아냅니다.
           </div>
         </div>
       </div>
 
-      <!-- 의학적 면책 & 참고 안내 카드 -->
-      <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs text-slate-600 flex items-start gap-2">
-        <i class="fa-solid fa-circle-info text-slate-400 text-sm mt-0.5 shrink-0"></i>
-        <div class="leading-relaxed">
-          <strong>분석 결과 참고 안내:</strong> 본 통계는 원인을 확정하는 의학적 진단이 아니며, 기록된 식사와 배변 증상의 시차 및 동반 패턴을 분석한 참고 자료입니다.
-        </div>
-      </div>
-
-      <!-- 트러블 동반 음식 랭킹 -->
+      <!-- 의심 음식 랭킹 (설사 유발) -->
       <div class="bg-white p-4 rounded-2xl border border-rose-200 shadow-sm">
         <div class="flex items-center justify-between mb-2">
           <h3 class="font-bold text-base text-slate-900 flex items-center gap-1.5">
-            <span class="text-rose-600 text-lg">⚠️</span> 트러블과 자주 동반된 음식 (Trouble Patterns)
+            <span class="text-rose-600 text-lg">⚠️</span> 장 트러블 유발 의심 음식 TOP
           </h3>
           <span class="text-xs text-rose-500 font-semibold bg-rose-50 px-2.5 py-0.5 rounded-full">설사/묽은변 직전</span>
         </div>
         <p class="text-sm text-slate-500 mb-3">
-          설사·묽은변 발생 전 섭취한 음식의 동반 빈도와 소화 시차를 분석했습니다.
+          설사하기 전 3끼 식사에 자주 등장한 순서대로 위험도를 분석했습니다.
         </p>
 
         <div id="suspectFoodList" class="flex flex-col gap-2.5">
@@ -292,17 +245,14 @@
         </div>
       </div>
 
-      <!-- 안심 음식 (쾌변 연관 음식) -->
+      <!-- 안전 음식 (된똥일 때 자주 먹음) -->
       <div class="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm">
         <div class="flex items-center justify-between mb-2">
           <h3 class="font-bold text-base text-slate-900 flex items-center gap-1.5">
-            <span class="text-emerald-600 text-lg">🥦</span> 속이 편안했던 안심 음식 (Green Patterns)
+            <span class="text-emerald-600 text-lg">🥦</span> 장에 안전했던 쾌변 음식 TOP
           </h3>
-          <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full">황금된똥 직전</span>
+          <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full">황금변 직전</span>
         </div>
-        <p class="text-sm text-slate-500 mb-3">
-          트러블 없이 쾌변(된똥)으로 안정 배출된 음식입니다.
-        </p>
         <div id="safeFoodList" class="flex flex-col gap-2">
           <!-- JS 렌더링 -->
         </div>
@@ -612,77 +562,12 @@
       refreshAllClearBtns();
     }
 
-    // 오늘의 장 상태 요약 대시보드 렌더링
-    function renderTodaySummary() {
-      const todayLabelEl = document.getElementById('todayDateLabel');
-      const goodCountEl = document.getElementById('todayGoodCount');
-      const mealCountEl = document.getElementById('todayMealCount');
-      const troubleCountEl = document.getElementById('todayTroubleCount');
-      const hardCountEl = document.getElementById('todayHardCount');
-
-      if (!goodCountEl) return;
-
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const todayPrefix = `${yyyy}-${mm}-${dd}`;
-
-      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-      const dayName = dayNames[now.getDay()];
-      if (todayLabelEl) {
-        todayLabelEl.innerText = `${now.getMonth() + 1}월 ${now.getDate()}일 (${dayName})`;
-      }
-
-      const meals = getMeals().filter(m => m.timestamp && m.timestamp.startsWith(todayPrefix));
-      const bowels = getBowels().filter(b => b.timestamp && b.timestamp.startsWith(todayPrefix));
-
-      let goodCount = 0;
-      let troubleCount = 0;
-      let hardCount = 0;
-
-      bowels.forEach(b => {
-        if (b.status === '된똥' || b.status === '보통') goodCount++;
-        else if (b.status === '설사' || b.status === '묽은변') troubleCount++;
-        else if (b.status === '단단한변') hardCount++;
-      });
-
-      goodCountEl.innerText = `${goodCount}회`;
-      mealCountEl.innerText = `${meals.length}끼`;
-      troubleCountEl.innerText = `${troubleCount}회`;
-      hardCountEl.innerText = `${hardCount}회`;
-    }
-
-    // 음식 명칭 정규화 헬퍼 (동의어 묶음 및 불필요한 수량/조사 제거)
-    function normalizeFoodName(rawName) {
-      if (!rawName) return '';
-      let clean = rawName.trim();
-      // 수량 및 단위 제거 (예: 1잔, 1개, 1그릇, 2인분 등)
-      clean = clean.replace(/\s*\d+\s*(잔|개|그릇|인분|조각|줄|병|캔|공기|봉지|포|알)?$/i, '');
-      clean = clean.replace(/\s+/g, ' ');
-
-      // 대표 메뉴 동의어 스마트 정규화
-      if (/^(아이스\s*아메리카노|아이스아메리카노|따뜻한\s*아메리카노|아아|뜨아|아메)$/i.test(clean)) {
-        return '아메리카노';
-      }
-      if (/^(카페\s*라떼|카페라떼|라떼|아이스라떼|아이스\s*라떼|바닐라라떼|돌체라떼)$/i.test(clean)) {
-        return '카페라떼(우유)';
-      }
-      if (/^(우유|흰우유|서울우유|매일우유|생우유|따뜻한\s*우유)$/i.test(clean)) {
-        return '우유';
-      }
-      if (/^(불닭|불닭볶음면|까르보불닭|핵불닭)$/i.test(clean)) {
-        return '불닭볶음면';
-      }
-      return clean.trim();
-    }
-
     // 문자열에서 음식 키워드 분리 & 정규화
     function parseFoodKeywords(inputStr) {
       if (!inputStr) return [];
       return inputStr
         .split(/[,+\/\n]/)
-        .map(s => normalizeFoodName(s))
+        .map(s => s.trim())
         .filter(s => s.length > 0);
     }
 
@@ -804,17 +689,11 @@
       const bowels = getBowels();
 
       const counts = {};
-      meals.forEach(m => m.foods.forEach(f => {
-        const norm = normalizeFoodName(f);
-        counts[norm] = (counts[norm] || 0) + 1;
-      }));
+      meals.forEach(m => m.foods.forEach(f => counts[f] = (counts[f] || 0) + 1));
       bowels.forEach(b => {
         ['meal1', 'meal2', 'meal3'].forEach(k => {
           if (b.prevMeals && b.prevMeals[k]) {
-            b.prevMeals[k].forEach(f => {
-              const norm = normalizeFoodName(f);
-              counts[norm] = (counts[norm] || 0) + 1;
-            });
+            b.prevMeals[k].forEach(f => counts[f] = (counts[f] || 0) + 1);
           }
         });
       });
@@ -901,7 +780,7 @@
     }
 
     // =================================================================
-    // 3. 트러블 패턴 분석 로직 (실제 시간차 Timestamp & 소화 시차 분석 엔진)
+    // 3. 트러블 원인 분석 로직 (실제 시간차 Timestamp & 의학적 잠복기 엔진)
     // =================================================================
     function renderAnalysis() {
       const bowels = getBowels();
@@ -961,9 +840,9 @@
         const matchedTimelineMeals = getValidMealsForBowel(b, meals, bowels);
 
         // 2) 배변 카드에 직접 적힌 식사(prevMeals)도 수집
-        const directMeal1 = (b.prevMeals?.meal1 || []).map(f => normalizeFoodName(f));
-        const directMeal2 = (b.prevMeals?.meal2 || []).map(f => normalizeFoodName(f));
-        const directMeal3 = (b.prevMeals?.meal3 || []).map(f => normalizeFoodName(f));
+        const directMeal1 = b.prevMeals?.meal1 || [];
+        const directMeal2 = b.prevMeals?.meal2 || [];
+        const directMeal3 = b.prevMeals?.meal3 || [];
 
         if (directMeal1.length > 0) uniqueMealSignatures.add(`b_${b.id}_1_${directMeal1.sort().join('|')}`);
         if (directMeal2.length > 0) uniqueMealSignatures.add(`b_${b.id}_2_${directMeal2.sort().join('|')}`);
@@ -975,8 +854,7 @@
         // 1순위: 타임라인에 실제 등록된 식사들의 정밀 시간차(hours)
         matchedTimelineMeals.forEach(m => {
           const elapsed = Math.max(0.2, (bDate - new Date(m.timestamp)) / (3600 * 1000));
-          m.foods.forEach(rawFood => {
-            const f = normalizeFoodName(rawFood);
+          m.foods.forEach(f => {
             if (!eventFoodMap.has(f) || eventFoodMap.get(f) > elapsed) {
               eventFoodMap.set(f, elapsed);
             }
@@ -1022,24 +900,11 @@
 
       const statsArray = Object.values(foodStats);
 
-      // 데이터 신뢰도 등급 헬퍼 (표본 수 기준)
-      function getReliability(totalCount) {
-        if (totalCount >= 7) {
-          return { text: '📊 유의미한 패턴', badgeClass: 'bg-blue-50 text-blue-700 border-blue-200' };
-        } else if (totalCount >= 3) {
-          return { text: '🔍 패턴 감지', badgeClass: 'bg-amber-50 text-amber-700 border-amber-200' };
-        } else {
-          return { text: '🌱 데이터 수집 중 (참고)', badgeClass: 'bg-slate-100 text-slate-600 border-slate-200' };
-        }
-      }
-
-      // 트러블 동반 음식: 설사/묽은변 동반 (소화 잠복기 가중치 종합 랭킹)
+      // 의심 음식: 설사/묽은변 원인 지목 (의학적 잠복기 가중치 종합 랭킹)
       const suspectList = statsArray
         .filter(s => s.troubleCount > 0)
         .map(s => {
-          const totalEaten = s.troubleCount + s.goodCount;
-          const troubleRate = Math.round((s.troubleCount / totalEaten) * 100);
-          const reliability = getReliability(totalEaten);
+          const riskRate = Math.round((s.troubleCount / (s.troubleCount + s.goodCount)) * 100);
 
           let patternType = 'acute';
           let patternBadge = '';
@@ -1053,83 +918,70 @@
             badgeColor = 'bg-purple-100 text-purple-700 border-purple-300';
             const avgH = s.delayedHours.reduce((a, b) => a + b, 0) / (s.delayedHours.length || 1);
             timingHint = `평균 ${avgH.toFixed(1)}시간 전 섭취 (세균성/독소 잠복기 구간)`;
-            causalityScore = troubleRate * 1.3 + s.delayedCount * 10;
+            causalityScore = riskRate * 1.3 + s.delayedCount * 10;
           } else if (s.slowCount > s.acuteCount && s.slowCount > s.delayedCount) {
             patternType = 'slow';
             patternBadge = '🔄 소화 지연/발효';
             badgeColor = 'bg-indigo-100 text-indigo-700 border-indigo-300';
             const avgH = s.slowHours.reduce((a, b) => a + b, 0) / (s.slowHours.length || 1);
             timingHint = `평균 ${avgH.toFixed(1)}시간 전 섭취 (장내 가스/FODMAP 반응)`;
-            causalityScore = troubleRate * 0.9 + s.slowCount * 5;
+            causalityScore = riskRate * 0.9 + s.slowCount * 5;
           } else {
             patternType = 'acute';
             patternBadge = '⚡ 급성 자극';
-            badgeColor = (troubleRate >= 75) ? 'bg-red-600 text-white border-red-700' : 'bg-rose-100 text-rose-700 border-rose-300';
+            badgeColor = (riskRate >= 75) ? 'bg-red-600 text-white border-red-700' : 'bg-rose-100 text-rose-700 border-rose-300';
             const avgH = s.acuteHours.reduce((a, b) => a + b, 0) / (s.acuteHours.length || 1);
             timingHint = `평균 ${avgH.toFixed(1)}시간 내 빠른 발병 (유당/매운맛/위대장반사)`;
-            causalityScore = troubleRate * 1.2 + s.acuteCount * 8;
+            causalityScore = riskRate * 1.2 + s.acuteCount * 8;
           }
 
-          return { ...s, totalEaten, troubleRate, patternType, patternBadge, timingHint, badgeColor, causalityScore, reliability };
+          return { ...s, riskRate, patternType, patternBadge, timingHint, badgeColor, causalityScore };
         })
-        .sort((a, b) => (b.causalityScore - a.causalityScore) || (b.troubleRate - a.troubleRate) || (b.troubleCount - a.troubleCount));
+        .sort((a, b) => (b.causalityScore - a.causalityScore) || (b.riskRate - a.riskRate) || (b.troubleCount - a.troubleCount));
 
-      // 안심 음식 (쾌변 연관)
+      // 안전 음식
       const safeList = statsArray
         .filter(s => s.goodCount > 0 && s.troubleCount === 0)
-        .map(s => ({
-          ...s,
-          totalEaten: s.goodCount,
-          reliability: getReliability(s.goodCount)
-        }))
         .sort((a, b) => b.goodCount - a.goodCount);
 
-      // 렌더링 - 트러블 동반 음식
+      // 렌더링 - 의심 음식
       if (suspectList.length === 0) {
-        suspectContainer.innerHTML = '<div class="text-sm text-emerald-600 bg-emerald-50 p-3.5 rounded-xl text-center font-medium">🎉 설사·묽은변과 동반된 트러블 음식이 아직 없습니다!</div>';
+        suspectContainer.innerHTML = '<div class="text-sm text-emerald-600 bg-emerald-50 p-3.5 rounded-xl text-center font-medium">🎉 설사를 유발한 의심 음식이 아직 없습니다!</div>';
       } else {
         suspectContainer.innerHTML = suspectList.map((item, idx) => `
           <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-            <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">${idx + 1}</span>
+                <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
                 <span class="font-bold text-base text-slate-800">${item.name}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full border font-medium ${item.reliability.badgeClass}">${item.reliability.text}</span>
               </div>
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${item.badgeColor}">
-                ${item.patternBadge} (동반율 ${item.troubleRate}%)
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${item.badgeColor}">
+                ${item.patternBadge} (${item.riskRate}%)
               </span>
             </div>
-            <div class="mt-2.5 text-sm text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>총 <strong>${item.totalEaten}회</strong> 섭취 중</span>
+            <div class="mt-2 text-sm text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span>🚨 설사 유발 <strong>${item.troubleCount}회</strong></span>
               <span class="text-slate-300">|</span>
-              <span class="text-rose-600 font-semibold">🚨 트러블 동반 <strong>${item.troubleCount}회</strong></span>
-              <span class="text-slate-300">|</span>
-              <span class="text-emerald-700 font-semibold">✨ 쾌변 <strong>${item.goodCount}회</strong></span>
+              <span>✨ 쾌변 통과 <strong>${item.goodCount}회</strong></span>
               <span class="text-slate-300">|</span>
               <span class="text-slate-500 text-xs font-medium"><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-0.5"></i> ${item.timingHint}</span>
             </div>
-            <!-- 동반율 프로그레스 바 -->
+            <!-- 위험도 프로그레스 바 -->
             <div class="w-full bg-slate-200 h-2 rounded-full mt-2.5 overflow-hidden">
-              <div class="${item.patternType === 'delayed' ? 'bg-purple-500' : 'bg-rose-500'} h-2 rounded-full transition-all duration-300" style="width: ${item.troubleRate}%"></div>
+              <div class="${item.patternType === 'delayed' ? 'bg-purple-500' : 'bg-rose-500'} h-2 rounded-full" style="width: ${item.riskRate}%"></div>
             </div>
           </div>
         `).join('');
       }
 
-      // 렌더링 - 안심 음식
+      // 렌더링 - 안전 음식
       if (safeList.length === 0) {
-        safeContainer.innerHTML = '<div class="text-sm text-slate-400 py-3 text-center">아직 쾌변 전용 안심 음식 데이터가 충분하지 않습니다.</div>';
+        safeContainer.innerHTML = '<div class="text-sm text-slate-400 py-3 text-center">아직 쾌변 전용 안전 음식 데이터가 충분하지 않습니다.</div>';
       } else {
         safeContainer.innerHTML = safeList.map(item => `
-          <div class="p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <span class="text-base font-bold text-slate-800">✅ ${item.name}</span>
-              <span class="text-xs px-2 py-0.5 rounded-full border font-medium ${item.reliability.badgeClass}">${item.reliability.text}</span>
-            </div>
-            <span class="text-xs font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-2.5 py-1 rounded-lg">
-              ✨ 총 ${item.goodCount}회 전회 쾌변
-            </span>
+          <div class="p-3 bg-emerald-50/50 border border-emerald-200 rounded-xl flex items-center justify-between">
+            <span class="text-sm font-bold text-slate-800">✅ ${item.name}</span>
+            <span class="text-sm text-emerald-700 font-medium">황금된똥 직전 ${item.goodCount}회 안전 배출</span>
           </div>
         `).join('');
       }
@@ -1384,7 +1236,6 @@
 
     // 전체 데이터 렌더링 갱신
     function renderAll() {
-      renderTodaySummary();
       renderRecentMeals();
       renderFrequentTags();
       renderAnalysis();
@@ -1544,7 +1395,7 @@
       saveMeals([...sampleMeals, ...currentMeals]);
       saveBowels([...sampleBowels, ...currentBowels]);
 
-      alert('샘플 데이터가 채워졌습니다! [트러블 분석] 탭에서 우유, 매운음식 등의 동반 패턴 통계를 확인해보세요.');
+      alert('샘플 데이터가 채워졌습니다! [트러블 분석] 탭에서 우유, 매운음식의 위험도 통계를 확인해보세요.');
       renderAll();
       switchTab('tab-analysis');
     }
