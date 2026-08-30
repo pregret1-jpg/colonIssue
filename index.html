@@ -275,6 +275,38 @@
         </div>
       </div>
 
+      <!-- 📊 음식별 장 반응 종합 성적표 (Reaction Matrix - GPT 4번 항목) -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-base text-slate-900 flex items-center gap-1.5">
+              <span class="text-lg">📊</span> 음식별 장 반응 종합 성적표
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              섭취 횟수 대비 트러블(🚨)과 쾌변(✨) 동반 비율을 종합 비교합니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- 정렬 세그먼트 버튼 -->
+        <div class="bg-slate-100 p-1 rounded-xl grid grid-cols-3 gap-1 text-xs font-semibold">
+          <button type="button" id="btnSortTroubleRate" onclick="setMatrixSort('troubleRate')" class="py-2 px-1 rounded-lg transition bg-white text-slate-800 shadow-xs font-bold">
+            🚨 트러블율순
+          </button>
+          <button type="button" id="btnSortEatenCount" onclick="setMatrixSort('eatenCount')" class="py-2 px-1 rounded-lg transition text-slate-600 hover:text-slate-900">
+            🍽️ 섭취횟수순
+          </button>
+          <button type="button" id="btnSortGoodRate" onclick="setMatrixSort('goodRate')" class="py-2 px-1 rounded-lg transition text-slate-600 hover:text-slate-900">
+            ✨ 쾌변율순
+          </button>
+        </div>
+
+        <!-- 성적표 리스트 컨테이너 -->
+        <div id="matrixFoodList" class="flex flex-col gap-2.5 pt-0.5">
+          <!-- JS 렌더링 -->
+        </div>
+      </div>
+
       <!-- 트러블 동반 음식 랭킹 -->
       <div class="bg-white p-4 rounded-2xl border border-rose-200 shadow-sm">
         <div class="flex items-center justify-between mb-2">
@@ -903,6 +935,24 @@
     // =================================================================
     // 3. 트러블 패턴 분석 로직 (실제 시간차 Timestamp & 소화 시차 분석 엔진)
     // =================================================================
+    let matrixSortMode = 'troubleRate';
+
+    function setMatrixSort(mode) {
+      matrixSortMode = mode;
+      const btnTrouble = document.getElementById('btnSortTroubleRate');
+      const btnEaten = document.getElementById('btnSortEatenCount');
+      const btnGood = document.getElementById('btnSortGoodRate');
+
+      const activeClass = 'py-2 px-1 rounded-lg transition bg-white text-slate-800 shadow-xs font-bold';
+      const inactiveClass = 'py-2 px-1 rounded-lg transition text-slate-600 hover:text-slate-900 font-medium';
+
+      if (btnTrouble) btnTrouble.className = (mode === 'troubleRate') ? activeClass : inactiveClass;
+      if (btnEaten) btnEaten.className = (mode === 'eatenCount') ? activeClass : inactiveClass;
+      if (btnGood) btnGood.className = (mode === 'goodRate') ? activeClass : inactiveClass;
+
+      renderAnalysis();
+    }
+
     function renderAnalysis() {
       const bowels = getBowels();
       const meals = getMeals();
@@ -915,13 +965,15 @@
       document.getElementById('statTroubleBowels').innerText = `${troubleBowels.length}회`;
       document.getElementById('statGoodBowels').innerText = `${goodBowels.length}회`;
 
+      const matrixContainer = document.getElementById('matrixFoodList');
       const suspectContainer = document.getElementById('suspectFoodList');
       const safeContainer = document.getElementById('safeFoodList');
       const statUniqueMealsEl = document.getElementById('statUniqueMeals');
 
       if (totalCount === 0) {
         if (statUniqueMealsEl) statUniqueMealsEl.innerText = `${meals.length}끼`;
-        suspectContainer.innerHTML = '<div class="text-sm text-slate-400 py-6 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
+        if (matrixContainer) matrixContainer.innerHTML = '<div class="text-sm text-slate-400 py-6 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
+        suspectContainer.innerHTML = '<div class="text-sm text-slate-400 py-4 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
         safeContainer.innerHTML = '<div class="text-sm text-slate-400 py-4 text-center">기록이 부족합니다.</div>';
         return;
       }
@@ -1033,20 +1085,20 @@
         }
       }
 
-      // 트러블 동반 음식: 설사/묽은변 동반 (소화 잠복기 가중치 종합 랭킹)
-      const suspectList = statsArray
-        .filter(s => s.troubleCount > 0)
-        .map(s => {
-          const totalEaten = s.troubleCount + s.goodCount;
-          const troubleRate = Math.round((s.troubleCount / totalEaten) * 100);
-          const reliability = getReliability(totalEaten);
+      // 전체 음식 리스트에 공통 속성(비율, 판정, 힌트 등) 매핑
+      const enrichedList = statsArray.map(s => {
+        const totalEaten = s.troubleCount + s.goodCount;
+        const troubleRate = totalEaten > 0 ? Math.round((s.troubleCount / totalEaten) * 100) : 0;
+        const goodRate = totalEaten > 0 ? Math.round((s.goodCount / totalEaten) * 100) : 0;
+        const reliability = getReliability(totalEaten);
 
-          let patternType = 'acute';
-          let patternBadge = '';
-          let timingHint = '';
-          let badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
-          let causalityScore = 0;
+        let patternType = 'acute';
+        let patternBadge = '';
+        let timingHint = '';
+        let badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
+        let causalityScore = 0;
 
+        if (s.troubleCount > 0) {
           if (s.delayedCount > s.acuteCount && s.delayedCount >= s.slowCount) {
             patternType = 'delayed';
             patternBadge = '⏳ 지연성 잠복기';
@@ -1069,22 +1121,98 @@
             timingHint = `평균 ${avgH.toFixed(1)}시간 내 빠른 발병 (유당/매운맛/위대장반사)`;
             causalityScore = troubleRate * 1.2 + s.acuteCount * 8;
           }
+        } else {
+          timingHint = '트러블 없이 속이 편안한 쾌변 중심 음식';
+          patternBadge = '✨ 쾌변 안심';
+          badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        }
 
-          return { ...s, totalEaten, troubleRate, patternType, patternBadge, timingHint, badgeColor, causalityScore, reliability };
-        })
+        // 반응 종합 판정
+        let verdict = { text: '⚖️ 복합 반응', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200' };
+        if (troubleRate >= 60) {
+          verdict = { text: '🚨 트러블 주의', badgeClass: 'bg-rose-100 text-rose-700 border-rose-200' };
+        } else if (goodRate >= 70) {
+          verdict = { text: '🟢 편안한 안심', badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+        }
+
+        return {
+          ...s,
+          totalEaten,
+          troubleRate,
+          goodRate,
+          patternType,
+          patternBadge,
+          timingHint,
+          badgeColor,
+          causalityScore,
+          reliability,
+          verdict
+        };
+      });
+
+      // =================================================================
+      // 1) 음식별 장 반응 종합 성적표 (Reaction Matrix - GPT 4번 항목)
+      // =================================================================
+      if (matrixContainer) {
+        const matrixList = [...enrichedList].filter(s => s.totalEaten > 0);
+
+        if (matrixSortMode === 'troubleRate') {
+          matrixList.sort((a, b) => (b.troubleRate - a.troubleRate) || (b.troubleCount - a.troubleCount) || (b.totalEaten - a.totalEaten));
+        } else if (matrixSortMode === 'eatenCount') {
+          matrixList.sort((a, b) => (b.totalEaten - a.totalEaten) || (b.troubleRate - a.troubleRate));
+        } else if (matrixSortMode === 'goodRate') {
+          matrixList.sort((a, b) => (b.goodRate - a.goodRate) || (b.goodCount - a.goodCount) || (b.totalEaten - a.totalEaten));
+        }
+
+        if (matrixList.length === 0) {
+          matrixContainer.innerHTML = '<div class="text-sm text-slate-400 py-4 text-center">연동된 음식 데이터가 없습니다.</div>';
+        } else {
+          matrixContainer.innerHTML = matrixList.map((item, idx) => `
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col gap-2 shadow-2xs">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">${idx + 1}</span>
+                  <span class="font-bold text-base text-slate-900">${item.name}</span>
+                  <span class="text-xs px-2 py-0.5 rounded-full border font-medium ${item.reliability.badgeClass}">${item.reliability.text}</span>
+                </div>
+                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${item.verdict.badgeClass}">
+                  ${item.verdict.text}
+                </span>
+              </div>
+
+              <!-- 수치 요약 -->
+              <div class="text-xs text-slate-600 flex items-center justify-between font-medium pt-0.5">
+                <span>총 <strong>${item.totalEaten}회</strong> 섭취</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-rose-600 font-semibold">🚨 트러블 ${item.troubleCount}회 (${item.troubleRate}%)</span>
+                  <span class="text-slate-300">|</span>
+                  <span class="text-emerald-700 font-semibold">✨ 쾌변 ${item.goodCount}회 (${item.goodRate}%)</span>
+                </div>
+              </div>
+
+              <!-- 듀얼 컬러 게이지 바 (트러블 vs 쾌변) -->
+              <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
+                <div class="bg-rose-500 h-full transition-all duration-300" style="width: ${item.troubleRate}%;" title="트러블 ${item.troubleRate}%"></div>
+                <div class="bg-emerald-500 h-full transition-all duration-300" style="width: ${item.goodRate}%;" title="쾌변 ${item.goodRate}%"></div>
+              </div>
+
+              <!-- 시차 및 설명 힌트 -->
+              <div class="text-xs text-slate-500 flex items-center justify-between flex-wrap gap-1">
+                <span><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-1"></i>${item.timingHint}</span>
+                <span class="text-slate-400 font-normal">비율: ${item.troubleRate}% vs ${item.goodRate}%</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // =================================================================
+      // 2) 트러블 동반 음식 랭킹
+      // =================================================================
+      const suspectList = enrichedList
+        .filter(s => s.troubleCount > 0)
         .sort((a, b) => (b.causalityScore - a.causalityScore) || (b.troubleRate - a.troubleRate) || (b.troubleCount - a.troubleCount));
 
-      // 안심 음식 (쾌변 연관)
-      const safeList = statsArray
-        .filter(s => s.goodCount > 0 && s.troubleCount === 0)
-        .map(s => ({
-          ...s,
-          totalEaten: s.goodCount,
-          reliability: getReliability(s.goodCount)
-        }))
-        .sort((a, b) => b.goodCount - a.goodCount);
-
-      // 렌더링 - 트러블 동반 음식
       if (suspectList.length === 0) {
         suspectContainer.innerHTML = '<div class="text-sm text-emerald-600 bg-emerald-50 p-3.5 rounded-xl text-center font-medium">🎉 설사·묽은변과 동반된 트러블 음식이 아직 없습니다!</div>';
       } else {
@@ -1117,7 +1245,13 @@
         `).join('');
       }
 
-      // 렌더링 - 안심 음식
+      // =================================================================
+      // 3) 안심 음식 랭킹
+      // =================================================================
+      const safeList = enrichedList
+        .filter(s => s.goodCount > 0 && s.troubleCount === 0)
+        .sort((a, b) => b.goodCount - a.goodCount);
+
       if (safeList.length === 0) {
         safeContainer.innerHTML = '<div class="text-sm text-slate-400 py-3 text-center">아직 쾌변 전용 안심 음식 데이터가 충분하지 않습니다.</div>';
       } else {
