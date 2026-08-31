@@ -46,38 +46,9 @@
   <main class="w-full max-w-lg p-4 flex-1 flex flex-col gap-4">
 
     <!-- ================================================================= -->
-    <!-- 탭 1: 기록하기 (오늘의 요약 + 배변/식사 원클릭 모드 전환) -->
+    <!-- 탭 1: 기록하기 (배변/식사 원클릭 모드 전환) -->
     <!-- ================================================================= -->
     <section id="tab-record" class="tab-content flex flex-col gap-4">
-
-      <!-- 오늘의 장 상태 요약 대시보드 카드 -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-2.5">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📅</span>
-            <h2 class="font-bold text-sm text-slate-800">오늘의 장 상태 요약</h2>
-          </div>
-          <span class="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-medium" id="todayDateLabel">오늘</span>
-        </div>
-        <div class="grid grid-cols-4 gap-2 pt-0.5">
-          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2 text-center">
-            <div class="text-xs text-emerald-700 font-semibold">✨ 쾌변</div>
-            <div id="todayGoodCount" class="text-lg font-black text-emerald-800">0회</div>
-          </div>
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-2 text-center">
-            <div class="text-xs text-amber-700 font-semibold">🍚 식사</div>
-            <div id="todayMealCount" class="text-lg font-black text-amber-800">0끼</div>
-          </div>
-          <div class="bg-rose-50 border border-rose-200 rounded-xl p-2 text-center">
-            <div class="text-xs text-rose-700 font-semibold">🚨 트러블</div>
-            <div id="todayTroubleCount" class="text-lg font-black text-rose-800">0회</div>
-          </div>
-          <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center">
-            <div class="text-xs text-slate-600 font-semibold">🧱 단단함</div>
-            <div id="todayHardCount" class="text-lg font-black text-slate-700">0회</div>
-          </div>
-        </div>
-      </div>
 
       <!-- 상단 모드 전환 세그먼트 버튼 -->
       <div class="bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs grid grid-cols-2 gap-1.5">
@@ -108,17 +79,22 @@
           <input type="datetime-local" id="bowelTime" required class="w-full text-base px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
         </div>
 
-        <!-- 배변 상태 선택 (브리스톨 대변 척도 안내 포함) -->
+        <!-- 배변 상태 선택 (4종 빠른 선택 + 브리스톨 1~7 상세 및 혼합 선택) -->
         <div>
           <div class="flex items-center justify-between mb-2">
             <label class="block text-sm font-semibold text-slate-600">
               배변 상태 <span class="text-rose-500 font-bold">*</span>
             </label>
-            <span class="text-xs text-slate-400 font-normal">브리스톨 척도(Type 1~7) 기준</span>
+            <button type="button" onclick="toggleBristolDetail('record')" class="text-xs text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-200 transition">
+              <i id="bristolToggleIcon_record" class="fa-solid fa-chevron-down"></i>
+              <span id="bristolToggleText_record">상세 척도(1~7) / 혼합 입력</span>
+            </button>
           </div>
-          <div class="grid grid-cols-2 gap-2">
+
+          <!-- 1) 기본 4종 빠른 선택 카드 -->
+          <div class="grid grid-cols-2 gap-2" id="quickBowelStatusGrid_record">
             <label class="cursor-pointer border-2 border-rose-200 hover:border-rose-400 bg-rose-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
-              <input type="radio" name="bowelStatus" value="설사" required class="w-4 h-4 text-rose-600 focus:ring-rose-500 shrink-0" />
+              <input type="radio" name="bowelStatus" value="설사" required onchange="onBowelRadioChange('record', '설사')" class="w-4 h-4 text-rose-600 focus:ring-rose-500 shrink-0" />
               <div>
                 <div class="font-bold text-base text-rose-700 flex items-center gap-1">🚨 설사</div>
                 <div class="text-xs text-rose-500">물설사 / 급박변 (Type 7)</div>
@@ -126,15 +102,15 @@
             </label>
 
             <label class="cursor-pointer border-2 border-amber-200 hover:border-amber-400 bg-amber-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
-              <input type="radio" name="bowelStatus" value="묽은변" class="w-4 h-4 text-amber-600 focus:ring-amber-500 shrink-0" />
+              <input type="radio" name="bowelStatus" value="묽은변" onchange="onBowelRadioChange('record', '묽은변')" class="w-4 h-4 text-amber-600 focus:ring-amber-500 shrink-0" />
               <div>
                 <div class="font-bold text-base text-amber-700 flex items-center gap-1">💧 묽은변</div>
-                <div class="text-xs text-amber-600">진흙변 / 무른 형태 (Type 6)</div>
+                <div class="text-xs text-amber-600">진흙변 / 무른 형태 (Type 5~6)</div>
               </div>
             </label>
 
             <label class="cursor-pointer border-2 border-emerald-200 hover:border-emerald-400 bg-emerald-50/50 p-3 rounded-xl flex items-center gap-2.5 transition">
-              <input type="radio" name="bowelStatus" value="된똥" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 shrink-0" />
+              <input type="radio" name="bowelStatus" value="된똥" onchange="onBowelRadioChange('record', '된똥')" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 shrink-0" />
               <div>
                 <div class="font-bold text-base text-emerald-700 flex items-center gap-1">✨ 황금된똥</div>
                 <div class="text-xs text-emerald-600">바나나형 쾌변 (Type 3~4)</div>
@@ -142,12 +118,45 @@
             </label>
 
             <label class="cursor-pointer border-2 border-slate-200 hover:border-slate-400 bg-slate-50 p-3 rounded-xl flex items-center gap-2.5 transition">
-              <input type="radio" name="bowelStatus" value="단단한변" class="w-4 h-4 text-slate-600 focus:ring-slate-500 shrink-0" />
+              <input type="radio" name="bowelStatus" value="단단한변" onchange="onBowelRadioChange('record', '단단한변')" class="w-4 h-4 text-slate-600 focus:ring-slate-500 shrink-0" />
               <div>
                 <div class="font-bold text-base text-slate-700 flex items-center gap-1">🧱 단단한변</div>
                 <div class="text-xs text-slate-500">토끼똥 / 변비 (Type 1~2)</div>
               </div>
             </label>
+          </div>
+
+          <!-- 2) 브리스톨 1~7 상세 및 혼합 선택 확장 패널 -->
+          <div id="bristolDetailPanel_record" class="hidden mt-3 p-3.5 bg-amber-50/40 rounded-2xl border border-amber-200/80 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                <i class="fa-solid fa-list-ol text-amber-600"></i> 브리스톨 척도(1~7) 상세 / 혼합 설정
+              </span>
+              <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full" id="bristolSummaryBadge_record">단일 상태</span>
+            </div>
+
+            <!-- 시작 상태 1~7 -->
+            <div>
+              <div class="text-xs font-semibold text-slate-600 mb-1.5 flex items-center justify-between">
+                <span>① 배변 시작 상태 (초반)</span>
+                <span class="text-[11px] text-amber-700 font-medium">필수</span>
+              </div>
+              <div class="grid grid-cols-7 gap-1" id="bristolStartGrid_record"></div>
+            </div>
+
+            <!-- 후반 상태 1~7 (선택) -->
+            <div>
+              <div class="text-xs font-semibold text-slate-600 mb-1.5 flex items-center justify-between">
+                <span>② 배변 후반 상태 (선택: 끝에 묽어지거나 달라진 경우)</span>
+                <button type="button" onclick="clearBristolEnd('record')" class="text-[11px] text-slate-400 hover:text-rose-500 underline font-normal">해제</button>
+              </div>
+              <div class="grid grid-cols-7 gap-1" id="bristolEndGrid_record"></div>
+            </div>
+
+            <!-- 미리보기 -->
+            <div id="bristolPreview_record" class="text-xs p-2.5 bg-white rounded-xl border border-slate-200 text-slate-700 leading-relaxed shadow-2xs">
+              <span class="font-bold text-amber-800">선택 상태:</span> <span id="bristolPreviewText_record">황금된똥 (Type 4)</span>
+            </div>
           </div>
         </div>
 
@@ -272,38 +281,6 @@
         <i class="fa-solid fa-circle-info text-slate-400 text-sm mt-0.5 shrink-0"></i>
         <div class="leading-relaxed">
           <strong>분석 결과 참고 안내:</strong> 본 통계는 원인을 확정하는 의학적 진단이 아니며, 기록된 식사와 배변 증상의 시차 및 동반 패턴을 분석한 참고 자료입니다.
-        </div>
-      </div>
-
-      <!-- 📊 음식별 장 반응 종합 성적표 (Reaction Matrix - GPT 4번 항목) -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="font-bold text-base text-slate-900 flex items-center gap-1.5">
-              <span class="text-lg">📊</span> 음식별 장 반응 종합 성적표
-            </h3>
-            <p class="text-xs text-slate-500 mt-0.5">
-              섭취 횟수 대비 트러블(🚨)과 쾌변(✨) 동반 비율을 종합 비교합니다.
-            </p>
-          </div>
-        </div>
-
-        <!-- 정렬 세그먼트 버튼 -->
-        <div class="bg-slate-100 p-1 rounded-xl grid grid-cols-3 gap-1 text-xs font-semibold">
-          <button type="button" id="btnSortTroubleRate" onclick="setMatrixSort('troubleRate')" class="py-2 px-1 rounded-lg transition bg-white text-slate-800 shadow-xs font-bold">
-            🚨 트러블율순
-          </button>
-          <button type="button" id="btnSortEatenCount" onclick="setMatrixSort('eatenCount')" class="py-2 px-1 rounded-lg transition text-slate-600 hover:text-slate-900">
-            🍽️ 섭취횟수순
-          </button>
-          <button type="button" id="btnSortGoodRate" onclick="setMatrixSort('goodRate')" class="py-2 px-1 rounded-lg transition text-slate-600 hover:text-slate-900">
-            ✨ 쾌변율순
-          </button>
-        </div>
-
-        <!-- 성적표 리스트 컨테이너 -->
-        <div id="matrixFoodList" class="flex flex-col gap-2.5 pt-0.5">
-          <!-- JS 렌더링 -->
         </div>
       </div>
 
@@ -454,20 +431,56 @@
           <input type="datetime-local" id="editBowelTime" required class="w-full text-base px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none" />
         </div>
         <div>
-          <label class="block text-sm font-semibold text-slate-600 mb-1.5">배변 상태</label>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-sm font-semibold text-slate-600">배변 상태</label>
+            <button type="button" onclick="toggleBristolDetail('edit')" class="text-xs text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200 transition">
+              <i id="bristolToggleIcon_edit" class="fa-solid fa-chevron-down"></i>
+              <span id="bristolToggleText_edit">상세 척도(1~7) / 혼합</span>
+            </button>
+          </div>
           <div class="grid grid-cols-2 gap-2">
             <label class="cursor-pointer border-2 border-rose-200 hover:border-rose-400 bg-rose-50/50 p-2.5 rounded-xl flex items-center gap-2 text-sm font-bold text-rose-700">
-              <input type="radio" name="editBowelStatus" value="설사" required class="w-4 h-4 text-rose-600" /> 🚨 설사
+              <input type="radio" name="editBowelStatus" value="설사" required onchange="onBowelRadioChange('edit', '설사')" class="w-4 h-4 text-rose-600" /> 🚨 설사
             </label>
             <label class="cursor-pointer border-2 border-amber-200 hover:border-amber-400 bg-amber-50/50 p-2.5 rounded-xl flex items-center gap-2 text-sm font-bold text-amber-700">
-              <input type="radio" name="editBowelStatus" value="묽은변" class="w-4 h-4 text-amber-600" /> 💧 묽은변
+              <input type="radio" name="editBowelStatus" value="묽은변" onchange="onBowelRadioChange('edit', '묽은변')" class="w-4 h-4 text-amber-600" /> 💧 묽은변
             </label>
             <label class="cursor-pointer border-2 border-emerald-200 hover:border-emerald-400 bg-emerald-50/50 p-2.5 rounded-xl flex items-center gap-2 text-sm font-bold text-emerald-700">
-              <input type="radio" name="editBowelStatus" value="된똥" class="w-4 h-4 text-emerald-600" /> ✨ 황금된똥
+              <input type="radio" name="editBowelStatus" value="된똥" onchange="onBowelRadioChange('edit', '된똥')" class="w-4 h-4 text-emerald-600" /> ✨ 황금된똥
             </label>
             <label class="cursor-pointer border-2 border-slate-200 hover:border-slate-400 bg-slate-50 p-2.5 rounded-xl flex items-center gap-2 text-sm font-bold text-slate-700">
-              <input type="radio" name="editBowelStatus" value="단단한변" class="w-4 h-4 text-slate-600" /> 🧱 단단한변
+              <input type="radio" name="editBowelStatus" value="단단한변" onchange="onBowelRadioChange('edit', '단단한변')" class="w-4 h-4 text-slate-600" /> 🧱 단단한변
             </label>
+          </div>
+
+          <!-- 브리스톨 상세 패널 (수정용) -->
+          <div id="bristolDetailPanel_edit" class="hidden mt-2.5 p-3 bg-amber-50/40 rounded-xl border border-amber-200 flex flex-col gap-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                <i class="fa-solid fa-list-ol text-amber-600"></i> 브리스톨 척도(1~7) 정밀 수정
+              </span>
+              <span class="text-xs text-slate-500 font-medium" id="bristolSummaryBadge_edit">단일 상태</span>
+            </div>
+
+            <div>
+              <div class="text-xs font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                <span>① 배변 시작 상태 (초반)</span>
+                <span class="text-[11px] text-amber-700 font-medium">필수</span>
+              </div>
+              <div class="grid grid-cols-7 gap-1" id="bristolStartGrid_edit"></div>
+            </div>
+
+            <div>
+              <div class="text-xs font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                <span>② 배변 후반 상태 (선택: 끝이 달라진 경우)</span>
+                <button type="button" onclick="clearBristolEnd('edit')" class="text-[11px] text-slate-400 hover:text-rose-500 underline">해제</button>
+              </div>
+              <div class="grid grid-cols-7 gap-1" id="bristolEndGrid_edit"></div>
+            </div>
+
+            <div id="bristolPreview_edit" class="text-xs p-2 bg-white rounded-lg border border-slate-200 text-slate-700 leading-snug">
+              <span class="font-bold text-amber-800">선택 상태:</span> <span id="bristolPreviewText_edit">-</span>
+            </div>
           </div>
         </div>
         <div>
@@ -510,6 +523,232 @@
     // LocalStorage 키
     const STORAGE_KEY_MEALS = 'jang_meals_v1';
     const STORAGE_KEY_BOWELS = 'jang_bowels_v1';
+
+    // 브리스톨 대변 척도 (Bristol Stool Scale Type 1~7) 메타데이터
+    const BRISTOL_SCALE = {
+      1: { level: 1, short: '토끼똥', name: 'Type 1', label: '단단한 알갱이 (토끼똥)', category: '단단한변', icon: '🧱', color: 'slate', desc: '심한 변비' },
+      2: { level: 2, short: '단단소시지', name: 'Type 2', label: '울퉁불퉁 소시지형', category: '단단한변', icon: '🧱', color: 'slate', desc: '경미한 변비' },
+      3: { level: 3, short: '균열소시지', name: 'Type 3', label: '표면 균열 소시지형', category: '된똥', icon: '✨', color: 'emerald', desc: '정상 쾌변' },
+      4: { level: 4, short: '매끈바나나', name: 'Type 4', label: '매끄러운 바나나형', category: '된똥', icon: '✨', color: 'emerald', desc: '이상적인 황금변' },
+      5: { level: 5, short: '부드러운변', name: 'Type 5', label: '부드러운 조각 (무름)', category: '묽은변', icon: '💧', color: 'amber', desc: '약간 무름 / 식이섬유 부족' },
+      6: { level: 6, short: '진흙변', name: 'Type 6', label: '진흙 형태 (무른변)', category: '묽은변', icon: '💧', color: 'amber', desc: '초기 설사 / 묽은변' },
+      7: { level: 7, short: '물설사', name: 'Type 7', label: '완전 액체 (물설사)', category: '설사', icon: '🚨', color: 'rose', desc: '급박변 / 급성 설사' }
+    };
+
+    const recordBristolState = {
+      isOpen: false,
+      start: 4,
+      end: null,
+      isMixed: false
+    };
+
+    const editBristolState = {
+      isOpen: false,
+      start: 4,
+      end: null,
+      isMixed: false
+    };
+
+    function getBristolBtnClass(type, isSelected) {
+      if (isSelected) {
+        if (type === 1 || type === 2) return 'bg-slate-700 text-white border-slate-800 shadow-sm ring-2 ring-slate-400 font-bold';
+        if (type === 3 || type === 4) return 'bg-emerald-600 text-white border-emerald-700 shadow-sm ring-2 ring-emerald-400 font-bold';
+        if (type === 5 || type === 6) return 'bg-amber-500 text-white border-amber-600 shadow-sm ring-2 ring-amber-300 font-bold';
+        if (type === 7) return 'bg-rose-600 text-white border-rose-700 shadow-sm ring-2 ring-rose-400 font-bold';
+      }
+      if (type === 1 || type === 2) return 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-medium';
+      if (type === 3 || type === 4) return 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50 font-medium';
+      if (type === 5 || type === 6) return 'bg-white text-amber-700 border-amber-200 hover:bg-amber-50 font-medium';
+      if (type === 7) return 'bg-white text-rose-700 border-rose-200 hover:bg-rose-50 font-medium';
+      return 'bg-white text-slate-700 border-slate-200';
+    }
+
+    function renderBristolGrids(mode) {
+      const state = (mode === 'record') ? recordBristolState : editBristolState;
+      const startGrid = document.getElementById(`bristolStartGrid_${mode}`);
+      const endGrid = document.getElementById(`bristolEndGrid_${mode}`);
+      if (!startGrid || !endGrid) return;
+
+      let startHtml = '';
+      let endHtml = '';
+
+      for (let i = 1; i <= 7; i++) {
+        const info = BRISTOL_SCALE[i];
+        const isStartSelected = (state.start === i);
+        const isEndSelected = (state.end === i);
+
+        const startClass = getBristolBtnClass(i, isStartSelected);
+        const endClass = getBristolBtnClass(i, isEndSelected);
+
+        startHtml += `
+          <button type="button" onclick="selectBristolType('${mode}', 'start', ${i})" class="py-1.5 px-0.5 rounded-lg border text-center flex flex-col items-center justify-center transition cursor-pointer ${startClass}">
+            <span class="text-xs font-black leading-none">T${i}</span>
+            <span class="text-[10px] scale-90 mt-1 leading-none truncate w-full text-center">${info.short}</span>
+          </button>
+        `;
+
+        endHtml += `
+          <button type="button" onclick="selectBristolType('${mode}', 'end', ${i})" class="py-1.5 px-0.5 rounded-lg border text-center flex flex-col items-center justify-center transition cursor-pointer ${endClass}">
+            <span class="text-xs font-black leading-none">T${i}</span>
+            <span class="text-[10px] scale-90 mt-1 leading-none truncate w-full text-center">${info.short}</span>
+          </button>
+        `;
+      }
+
+      startGrid.innerHTML = startHtml;
+      endGrid.innerHTML = endHtml;
+      updateBristolPreview(mode);
+    }
+
+    function selectBristolType(mode, position, type) {
+      const state = (mode === 'record') ? recordBristolState : editBristolState;
+      if (position === 'start') {
+        state.start = type;
+        const cat = BRISTOL_SCALE[type].category;
+        const radioName = (mode === 'record') ? 'bowelStatus' : 'editBowelStatus';
+        const radio = document.querySelector(`input[name="${radioName}"][value="${cat}"]`);
+        if (radio) radio.checked = true;
+      } else if (position === 'end') {
+        if (state.end === type) {
+          state.end = null;
+          state.isMixed = false;
+        } else {
+          state.end = type;
+          state.isMixed = true;
+        }
+      }
+      renderBristolGrids(mode);
+    }
+
+    function clearBristolEnd(mode) {
+      const state = (mode === 'record') ? recordBristolState : editBristolState;
+      state.end = null;
+      state.isMixed = false;
+      renderBristolGrids(mode);
+    }
+
+    function updateBristolPreview(mode) {
+      const state = (mode === 'record') ? recordBristolState : editBristolState;
+      const previewTextEl = document.getElementById(`bristolPreviewText_${mode}`);
+      const summaryBadgeEl = document.getElementById(`bristolSummaryBadge_${mode}`);
+      if (!previewTextEl) return;
+
+      const startInfo = BRISTOL_SCALE[state.start] || BRISTOL_SCALE[4];
+      if (state.isMixed && state.end) {
+        const endInfo = BRISTOL_SCALE[state.end] || BRISTOL_SCALE[6];
+        if (summaryBadgeEl) {
+          summaryBadgeEl.innerText = `혼합 배변 (Type ${state.start} ➔ Type ${state.end})`;
+          summaryBadgeEl.className = 'text-xs font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full';
+        }
+        previewTextEl.innerHTML = `
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-1.5 font-bold text-slate-800">
+              <span>${startInfo.icon} Type ${state.start}(${startInfo.category})</span>
+              <span class="text-slate-400">➔</span>
+              <span>${endInfo.icon} Type ${state.end}(${endInfo.category})</span>
+              <span class="text-[11px] text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200 font-bold">혼합</span>
+            </div>
+            <div class="text-[11px] text-slate-500">
+              초반: ${startInfo.label} ➔ 후반: ${endInfo.label}
+            </div>
+          </div>
+        `;
+      } else {
+        if (summaryBadgeEl) {
+          summaryBadgeEl.innerText = `단일 상태 (Type ${state.start})`;
+          summaryBadgeEl.className = 'text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full';
+        }
+        previewTextEl.innerHTML = `
+          <div class="flex items-center gap-1.5 font-bold text-slate-800">
+            <span>${startInfo.icon} Type ${state.start} (${startInfo.category})</span>
+            <span class="font-normal text-slate-500 text-xs">- ${startInfo.label} (${startInfo.desc})</span>
+          </div>
+        `;
+      }
+    }
+
+    function toggleBristolDetail(mode) {
+      const state = (mode === 'record') ? recordBristolState : editBristolState;
+      state.isOpen = !state.isOpen;
+      const panel = document.getElementById(`bristolDetailPanel_${mode}`);
+      const icon = document.getElementById(`bristolToggleIcon_${mode}`);
+      const text = document.getElementById(`bristolToggleText_${mode}`);
+      if (!panel) return;
+
+      if (state.isOpen) {
+        panel.classList.remove('hidden');
+        if (icon) icon.className = 'fa-solid fa-chevron-up';
+        if (text) text.innerText = '상세 척도 접기';
+        renderBristolGrids(mode);
+      } else {
+        panel.classList.add('hidden');
+        if (icon) icon.className = 'fa-solid fa-chevron-down';
+        if (text) text.innerText = (mode === 'record') ? '상세 척도(1~7) / 혼합 입력' : '상세 척도(1~7) / 혼합';
+      }
+    }
+
+    function onBowelRadioChange(mode, status) {
+      const state = (mode === 'record') ? recordBristolState : editBristolState;
+      if (status === '설사') state.start = 7;
+      else if (status === '묽은변') state.start = 6;
+      else if (status === '된똥') state.start = 4;
+      else if (status === '단단한변') state.start = 1;
+      
+      renderBristolGrids(mode);
+    }
+
+    function isTroubleBowel(b) {
+      if (!b) return false;
+      if (b.status === '설사' || b.status === '묽은변') return true;
+      if (b.bristol) {
+        if (b.bristol.start >= 6 || b.bristol.end >= 6) return true;
+        if (b.bristol.isMixed && (b.bristol.end >= 5 || b.bristol.start >= 5)) return true;
+      }
+      return false;
+    }
+
+    function isGoodBowel(b) {
+      if (!b) return false;
+      if (isTroubleBowel(b)) return false;
+      if (b.status === '된똥' || b.status === '보통') return true;
+      if (b.bristol && (b.bristol.start === 3 || b.bristol.start === 4) && !b.bristol.isMixed) return true;
+      return false;
+    }
+
+    function renderBowelBadge(item) {
+      const isTrouble = isTroubleBowel(item);
+      const badgeStyle = isTrouble ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700';
+
+      if (item.bristol && item.bristol.isMixed && item.bristol.end) {
+        const sInfo = BRISTOL_SCALE[item.bristol.start] || BRISTOL_SCALE[4];
+        const eInfo = BRISTOL_SCALE[item.bristol.end] || BRISTOL_SCALE[6];
+        return `
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 flex items-center gap-1">
+              ${sInfo.icon} ${item.status || sInfo.category} (Type ${item.bristol.start})
+            </span>
+            <span class="text-xs font-bold text-slate-400">➔</span>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-md ${eInfo.level >= 6 ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'} flex items-center gap-1">
+              ${eInfo.icon} ${eInfo.category} (Type ${item.bristol.end})
+            </span>
+            <span class="text-[11px] font-extrabold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">혼합</span>
+          </div>
+        `;
+      } else if (item.bristol && item.bristol.start) {
+        const info = BRISTOL_SCALE[item.bristol.start] || BRISTOL_SCALE[4];
+        return `
+          <span class="text-xs font-bold px-2.5 py-1 rounded-md ${badgeStyle} flex items-center gap-1">
+            ${info.icon} ${item.status || info.category} <span class="text-[11px] opacity-80">(Type ${item.bristol.start})</span>
+          </span>
+        `;
+      }
+
+      return `
+        <span class="text-xs font-bold px-2.5 py-1 rounded-md ${badgeStyle}">
+          ${item.status === '설사' ? '🚨' : item.status === '묽은변' ? '💧' : item.status === '단단한변' ? '🧱' : '✨'} ${item.status}
+        </span>
+      `;
+    }
 
     let timelineFilter = 'all';
 
@@ -559,6 +798,7 @@
         input.addEventListener('focus', () => updateClearBtn(input));
       });
 
+      renderBristolGrids('record');
       renderAll();
     });
 
@@ -644,47 +884,6 @@
       refreshAllClearBtns();
     }
 
-    // 오늘의 장 상태 요약 대시보드 렌더링
-    function renderTodaySummary() {
-      const todayLabelEl = document.getElementById('todayDateLabel');
-      const goodCountEl = document.getElementById('todayGoodCount');
-      const mealCountEl = document.getElementById('todayMealCount');
-      const troubleCountEl = document.getElementById('todayTroubleCount');
-      const hardCountEl = document.getElementById('todayHardCount');
-
-      if (!goodCountEl) return;
-
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const todayPrefix = `${yyyy}-${mm}-${dd}`;
-
-      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-      const dayName = dayNames[now.getDay()];
-      if (todayLabelEl) {
-        todayLabelEl.innerText = `${now.getMonth() + 1}월 ${now.getDate()}일 (${dayName})`;
-      }
-
-      const meals = getMeals().filter(m => m.timestamp && m.timestamp.startsWith(todayPrefix));
-      const bowels = getBowels().filter(b => b.timestamp && b.timestamp.startsWith(todayPrefix));
-
-      let goodCount = 0;
-      let troubleCount = 0;
-      let hardCount = 0;
-
-      bowels.forEach(b => {
-        if (b.status === '된똥' || b.status === '보통') goodCount++;
-        else if (b.status === '설사' || b.status === '묽은변') troubleCount++;
-        else if (b.status === '단단한변') hardCount++;
-      });
-
-      goodCountEl.innerText = `${goodCount}회`;
-      mealCountEl.innerText = `${meals.length}끼`;
-      troubleCountEl.innerText = `${troubleCount}회`;
-      hardCountEl.innerText = `${hardCount}회`;
-    }
-
     // 음식 명칭 정규화 헬퍼 (동의어 묶음 및 불필요한 수량/조사 제거)
     function normalizeFoodName(rawName) {
       if (!rawName) return '';
@@ -736,6 +935,11 @@
         id: 'bowel_' + Date.now(),
         timestamp: time,
         status: status,
+        bristol: {
+          start: recordBristolState.start || 4,
+          end: recordBristolState.end || null,
+          isMixed: !!recordBristolState.isMixed
+        },
         memo: memo
       };
 
@@ -744,11 +948,20 @@
       bowels.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       saveBowels(bowels);
 
-      alert(`[${status}] 배변 기록이 저장되었습니다!`);
+      if (recordBristolState.isMixed && recordBristolState.end) {
+        alert(`[${status}] 배변 기록 (Type ${recordBristolState.start} ➔ Type ${recordBristolState.end} 혼합)이 저장되었습니다!`);
+      } else {
+        alert(`[${status}] 배변 기록 (Type ${recordBristolState.start})이 저장되었습니다!`);
+      }
 
       // 폼 초기화 및 현재 시각 갱신
       document.getElementById('bowelForm').reset();
       document.getElementById('bowelTime').value = getNowLocalString();
+      recordBristolState.start = 4;
+      recordBristolState.end = null;
+      recordBristolState.isMixed = false;
+      renderBristolGrids('record');
+
       renderAll();
       refreshAllClearBtns();
       switchTab('tab-analysis');
@@ -904,7 +1117,7 @@
     // 헬퍼: 배변 이벤트와 인과관계가 유효한 섭취 식사 필터링 (의학적 소화·배출 Clearance 모델)
     // =================================================================
     function getValidMealsForBowel(b, allMeals, allBowels) {
-      const isTrouble = (b.status === '설사' || b.status === '묽은변');
+      const isTrouble = isTroubleBowel(b);
       const bDate = new Date(b.timestamp);
 
       return allMeals.filter(m => {
@@ -915,7 +1128,7 @@
         // 설사/묽은변일 때: 식사 m과 배변 b 사이에 이미 정상 쾌변(된똥)이 있었는지 검사
         if (isTrouble) {
           const interveningGood = allBowels.find(prevB => {
-            if (prevB.status !== '된똥' && prevB.status !== '보통') return false;
+            if (!isGoodBowel(prevB)) return false;
             const prevBDate = new Date(prevB.timestamp);
             return prevBDate > mDate && prevBDate < bDate;
           });
@@ -935,44 +1148,24 @@
     // =================================================================
     // 3. 트러블 패턴 분석 로직 (실제 시간차 Timestamp & 소화 시차 분석 엔진)
     // =================================================================
-    let matrixSortMode = 'troubleRate';
-
-    function setMatrixSort(mode) {
-      matrixSortMode = mode;
-      const btnTrouble = document.getElementById('btnSortTroubleRate');
-      const btnEaten = document.getElementById('btnSortEatenCount');
-      const btnGood = document.getElementById('btnSortGoodRate');
-
-      const activeClass = 'py-2 px-1 rounded-lg transition bg-white text-slate-800 shadow-xs font-bold';
-      const inactiveClass = 'py-2 px-1 rounded-lg transition text-slate-600 hover:text-slate-900 font-medium';
-
-      if (btnTrouble) btnTrouble.className = (mode === 'troubleRate') ? activeClass : inactiveClass;
-      if (btnEaten) btnEaten.className = (mode === 'eatenCount') ? activeClass : inactiveClass;
-      if (btnGood) btnGood.className = (mode === 'goodRate') ? activeClass : inactiveClass;
-
-      renderAnalysis();
-    }
-
     function renderAnalysis() {
       const bowels = getBowels();
       const meals = getMeals();
       
       const totalCount = bowels.length;
-      const troubleBowels = bowels.filter(b => b.status === '설사' || b.status === '묽은변');
-      const goodBowels = bowels.filter(b => b.status === '된똥' || b.status === '보통');
+      const troubleBowels = bowels.filter(b => isTroubleBowel(b));
+      const goodBowels = bowels.filter(b => isGoodBowel(b));
 
       document.getElementById('statTotalBowels').innerText = `${totalCount}회`;
       document.getElementById('statTroubleBowels').innerText = `${troubleBowels.length}회`;
       document.getElementById('statGoodBowels').innerText = `${goodBowels.length}회`;
 
-      const matrixContainer = document.getElementById('matrixFoodList');
       const suspectContainer = document.getElementById('suspectFoodList');
       const safeContainer = document.getElementById('safeFoodList');
       const statUniqueMealsEl = document.getElementById('statUniqueMeals');
 
       if (totalCount === 0) {
         if (statUniqueMealsEl) statUniqueMealsEl.innerText = `${meals.length}끼`;
-        if (matrixContainer) matrixContainer.innerHTML = '<div class="text-sm text-slate-400 py-6 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
         suspectContainer.innerHTML = '<div class="text-sm text-slate-400 py-4 text-center">배변 기록이 등록되면 분석 결과가 나타납니다.</div>';
         safeContainer.innerHTML = '<div class="text-sm text-slate-400 py-4 text-center">기록이 부족합니다.</div>';
         return;
@@ -1006,7 +1199,7 @@
 
       // 각 배변 이벤트별로 유효 식사를 시간차(hours)로 분석
       bowels.forEach(b => {
-        const isTrouble = (b.status === '설사' || b.status === '묽은변');
+        const isTrouble = isTroubleBowel(b);
         const bDate = new Date(b.timestamp);
 
         // 1) 평소 식사 기록(meals) 중 의학적 유효 식사 필터링
@@ -1151,63 +1344,7 @@
       });
 
       // =================================================================
-      // 1) 음식별 장 반응 종합 성적표 (Reaction Matrix - GPT 4번 항목)
-      // =================================================================
-      if (matrixContainer) {
-        const matrixList = [...enrichedList].filter(s => s.totalEaten > 0);
-
-        if (matrixSortMode === 'troubleRate') {
-          matrixList.sort((a, b) => (b.troubleRate - a.troubleRate) || (b.troubleCount - a.troubleCount) || (b.totalEaten - a.totalEaten));
-        } else if (matrixSortMode === 'eatenCount') {
-          matrixList.sort((a, b) => (b.totalEaten - a.totalEaten) || (b.troubleRate - a.troubleRate));
-        } else if (matrixSortMode === 'goodRate') {
-          matrixList.sort((a, b) => (b.goodRate - a.goodRate) || (b.goodCount - a.goodCount) || (b.totalEaten - a.totalEaten));
-        }
-
-        if (matrixList.length === 0) {
-          matrixContainer.innerHTML = '<div class="text-sm text-slate-400 py-4 text-center">연동된 음식 데이터가 없습니다.</div>';
-        } else {
-          matrixContainer.innerHTML = matrixList.map((item, idx) => `
-            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col gap-2 shadow-2xs">
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">${idx + 1}</span>
-                  <span class="font-bold text-base text-slate-900">${item.name}</span>
-                  <span class="text-xs px-2 py-0.5 rounded-full border font-medium ${item.reliability.badgeClass}">${item.reliability.text}</span>
-                </div>
-                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${item.verdict.badgeClass}">
-                  ${item.verdict.text}
-                </span>
-              </div>
-
-              <!-- 수치 요약 -->
-              <div class="text-xs text-slate-600 flex items-center justify-between font-medium pt-0.5">
-                <span>총 <strong>${item.totalEaten}회</strong> 섭취</span>
-                <div class="flex items-center gap-2">
-                  <span class="text-rose-600 font-semibold">🚨 트러블 ${item.troubleCount}회 (${item.troubleRate}%)</span>
-                  <span class="text-slate-300">|</span>
-                  <span class="text-emerald-700 font-semibold">✨ 쾌변 ${item.goodCount}회 (${item.goodRate}%)</span>
-                </div>
-              </div>
-
-              <!-- 듀얼 컬러 게이지 바 (트러블 vs 쾌변) -->
-              <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
-                <div class="bg-rose-500 h-full transition-all duration-300" style="width: ${item.troubleRate}%;" title="트러블 ${item.troubleRate}%"></div>
-                <div class="bg-emerald-500 h-full transition-all duration-300" style="width: ${item.goodRate}%;" title="쾌변 ${item.goodRate}%"></div>
-              </div>
-
-              <!-- 시차 및 설명 힌트 -->
-              <div class="text-xs text-slate-500 flex items-center justify-between flex-wrap gap-1">
-                <span><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-1"></i>${item.timingHint}</span>
-                <span class="text-slate-400 font-normal">비율: ${item.troubleRate}% vs ${item.goodRate}%</span>
-              </div>
-            </div>
-          `).join('');
-        }
-      }
-
-      // =================================================================
-      // 2) 트러블 동반 음식 랭킹
+      // 1) 트러블 동반 음식 랭킹
       // =================================================================
       const suspectList = enrichedList
         .filter(s => s.troubleCount > 0)
@@ -1323,9 +1460,8 @@
           `;
         } else {
           // 배변 기록
-          const isTrouble = (item.status === '설사' || item.status === '묽은변');
+          const isTrouble = isTroubleBowel(item);
           const borderStyle = isTrouble ? 'border-l-4 border-l-rose-500' : 'border-l-4 border-l-amber-500';
-          const badgeStyle = isTrouble ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700';
 
           const prev1 = item.prevMeals?.meal1 || [];
           const prev2 = item.prevMeals?.meal2 || [];
@@ -1334,9 +1470,9 @@
           return `
             <div class="p-3.5 bg-white ${borderStyle} border border-slate-200 rounded-xl shadow-xs">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold px-2.5 py-1 rounded-md ${badgeStyle}">
-                  ${item.status === '설사' ? '🚨' : item.status === '묽은변' ? '💧' : '✨'} ${item.status}
-                </span>
+                <div>
+                  ${renderBowelBadge(item)}
+                </div>
                 <div class="flex items-center gap-1">
                   <span class="text-xs text-slate-400 mr-1">${formatDateTime(item.timestamp)}</span>
                   <button type="button" onclick="openEditBowelModal('${item.id}')" class="text-slate-400 hover:text-amber-600 p-1 text-sm transition" title="수정">
@@ -1481,6 +1617,28 @@
       const radio = document.querySelector(`input[name="editBowelStatus"][value="${bowel.status}"]`);
       if (radio) radio.checked = true;
 
+      // 브리스톨 상태 복원
+      if (bowel.bristol) {
+        editBristolState.start = bowel.bristol.start || 4;
+        editBristolState.end = bowel.bristol.end || null;
+        editBristolState.isMixed = !!bowel.bristol.isMixed;
+      } else {
+        if (bowel.status === '설사') editBristolState.start = 7;
+        else if (bowel.status === '묽은변') editBristolState.start = 6;
+        else if (bowel.status === '된똥') editBristolState.start = 4;
+        else if (bowel.status === '단단한변') editBristolState.start = 1;
+        else editBristolState.start = 4;
+        editBristolState.end = null;
+        editBristolState.isMixed = false;
+      }
+
+      // 만약 혼합 상태이면 상세 패널 자동으로 열기
+      if (editBristolState.isMixed && !editBristolState.isOpen) {
+        toggleBristolDetail('edit');
+      } else {
+        renderBristolGrids('edit');
+      }
+
       document.getElementById('editBowelMemo').value = bowel.memo || '';
       refreshAllClearBtns();
       document.getElementById('editBowelModal').classList.remove('hidden');
@@ -1507,6 +1665,11 @@
       if (idx !== -1) {
         bowels[idx].timestamp = time;
         bowels[idx].status = status;
+        bowels[idx].bristol = {
+          start: editBristolState.start || 4,
+          end: editBristolState.end || null,
+          isMixed: !!editBristolState.isMixed
+        };
         bowels[idx].memo = memo;
         bowels.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         saveBowels(bowels);
@@ -1518,7 +1681,6 @@
 
     // 전체 데이터 렌더링 갱신
     function renderAll() {
-      renderTodaySummary();
       renderRecentMeals();
       renderFrequentTags();
       renderAnalysis();
@@ -1631,6 +1793,7 @@
           id: 'sb_1',
           timestamp: createTime(34),
           status: '설사',
+          bristol: { start: 7, end: null, isMixed: false },
           prevMeals: {
             meal1: ['마라탕', '꿔바로우', '우유'],
             meal2: ['아메리카노', '샌드위치'],
@@ -1642,17 +1805,19 @@
           id: 'sb_2',
           timestamp: createTime(20),
           status: '된똥',
+          bristol: { start: 4, end: null, isMixed: false },
           prevMeals: {
             meal1: ['연어샐러드', '사과'],
             meal2: ['된장찌개', '시금치나물', '잡곡밥'],
             meal3: ['마라탕', '꿔바로우', '우유']
           },
-          memo: '속 편안하고 기분 좋은 쾌변'
+          memo: '속 편안하고 기분 좋은 황금 바나나변'
         },
         {
           id: 'sb_3',
           timestamp: createTime(14),
           status: '설사',
+          bristol: { start: 7, end: null, isMixed: false },
           prevMeals: {
             meal1: ['불닭볶음면', '카페라떼(우유)'],
             meal2: ['연어샐러드', '사과'],
@@ -1663,13 +1828,14 @@
         {
           id: 'sb_4',
           timestamp: createTime(2),
-          status: '묽은변',
+          status: '된똥',
+          bristol: { start: 4, end: 6, isMixed: true },
           prevMeals: {
             meal1: ['치즈피자', '크림파스타(우유)'],
             meal2: ['바나나', '플레인요거트'],
             meal3: ['불닭볶음면', '카페라떼(우유)']
           },
-          memo: '크림파스타 먹고 가스 차면서 묽은변'
+          memo: '크림파스타 먹고 초반엔 정상이었으나 후반부에 묽은변 배출'
         }
       ];
 
