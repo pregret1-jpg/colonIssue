@@ -245,26 +245,6 @@
     <!-- 탭 3: 트러블 연관 패턴 분석 (통계 & 동반 음식 랭킹) -->
     <!-- ================================================================= -->
     <section id="tab-analysis" class="tab-content hidden flex flex-col gap-4">
-      <!-- 통계 개요 카드 -->
-      <div class="grid grid-cols-4 gap-2">
-        <div class="bg-white p-2.5 rounded-2xl border border-slate-200 text-center shadow-sm">
-          <div class="text-xs text-slate-500 font-medium">배변 기록</div>
-          <div id="statTotalBowels" class="text-xl font-extrabold text-slate-800">0회</div>
-        </div>
-        <div class="bg-white p-2.5 rounded-2xl border border-rose-200 text-center shadow-sm">
-          <div class="text-xs text-rose-600 font-semibold">🚨 설사/묽은변</div>
-          <div id="statTroubleBowels" class="text-xl font-extrabold text-rose-600">0회</div>
-        </div>
-        <div class="bg-white p-2.5 rounded-2xl border border-emerald-200 text-center shadow-sm">
-          <div class="text-xs text-emerald-600 font-semibold">✨ 된똥/쾌변</div>
-          <div id="statGoodBowels" class="text-xl font-extrabold text-emerald-600">0회</div>
-        </div>
-        <div class="bg-white p-2.5 rounded-2xl border border-amber-200 text-center shadow-sm">
-          <div class="text-xs text-amber-700 font-semibold">🍽️ 섭취 식사</div>
-          <div id="statUniqueMeals" class="text-xl font-extrabold text-amber-800">0끼</div>
-        </div>
-      </div>
-
       <!-- 소화·배출 시차 & 동반 패턴 안내 배너 -->
       <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-4 rounded-2xl text-sm text-amber-900 flex items-start gap-3 shadow-2xs">
         <span class="text-xl text-amber-600 mt-0.5">⏱️</span>
@@ -1156,9 +1136,12 @@
       const troubleBowels = bowels.filter(b => isTroubleBowel(b));
       const goodBowels = bowels.filter(b => isGoodBowel(b));
 
-      document.getElementById('statTotalBowels').innerText = `${totalCount}회`;
-      document.getElementById('statTroubleBowels').innerText = `${troubleBowels.length}회`;
-      document.getElementById('statGoodBowels').innerText = `${goodBowels.length}회`;
+      const statTotalBowels = document.getElementById('statTotalBowels');
+      if (statTotalBowels) statTotalBowels.innerText = `${totalCount}회`;
+      const statTroubleBowels = document.getElementById('statTroubleBowels');
+      if (statTroubleBowels) statTroubleBowels.innerText = `${troubleBowels.length}회`;
+      const statGoodBowels = document.getElementById('statGoodBowels');
+      if (statGoodBowels) statGoodBowels.innerText = `${goodBowels.length}회`;
 
       const suspectContainer = document.getElementById('suspectFoodList');
       const safeContainer = document.getElementById('safeFoodList');
@@ -1280,10 +1263,26 @@
 
       // 전체 음식 리스트에 공통 속성(비율, 판정, 힌트 등) 매핑
       const enrichedList = statsArray.map(s => {
-        const totalEaten = s.troubleCount + s.goodCount;
-        const troubleRate = totalEaten > 0 ? Math.round((s.troubleCount / totalEaten) * 100) : 0;
-        const goodRate = totalEaten > 0 ? Math.round((s.goodCount / totalEaten) * 100) : 0;
-        const reliability = getReliability(totalEaten);
+        // 실제 식사 기록(meals) 및 배변 카드 직접 입력(prevMeals)에서의 실제 섭취 횟수 카운트
+        let actualMealEatCount = 0;
+        meals.forEach(m => {
+          if (m.foods && m.foods.some(f => normalizeFoodName(f) === s.name)) {
+            actualMealEatCount++;
+          }
+        });
+        let directEatCount = 0;
+        bowels.forEach(b => {
+          ['meal1', 'meal2', 'meal3'].forEach(k => {
+            if (b.prevMeals && b.prevMeals[k] && b.prevMeals[k].some(f => normalizeFoodName(f) === s.name)) {
+              directEatCount++;
+            }
+          });
+        });
+        const actualEatCount = actualMealEatCount + directEatCount || 1;
+        const totalBowelMatches = s.troubleCount + s.goodCount;
+        const troubleRate = totalBowelMatches > 0 ? Math.round((s.troubleCount / totalBowelMatches) * 100) : 0;
+        const goodRate = totalBowelMatches > 0 ? Math.round((s.goodCount / totalBowelMatches) * 100) : 0;
+        const reliability = getReliability(actualEatCount);
 
         let patternType = 'acute';
         let patternBadge = '';
@@ -1330,7 +1329,8 @@
 
         return {
           ...s,
-          totalEaten,
+          actualEatCount,
+          totalBowelMatches,
           troubleRate,
           goodRate,
           patternType,
@@ -1366,11 +1366,13 @@
               </span>
             </div>
             <div class="mt-2.5 text-sm text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>총 <strong>${item.totalEaten}회</strong> 섭취 중</span>
+              <span>식사 <strong>${item.actualEatCount}회</strong> 기록</span>
               <span class="text-slate-300">|</span>
-              <span class="text-rose-600 font-semibold">🚨 트러블 동반 <strong>${item.troubleCount}회</strong></span>
-              <span class="text-slate-300">|</span>
-              <span class="text-emerald-700 font-semibold">✨ 쾌변 <strong>${item.goodCount}회</strong></span>
+              <span class="text-rose-600 font-semibold">🚨 트러블 배변 연계 <strong>${item.troubleCount}회</strong></span>
+              ${item.goodCount > 0 ? `
+                <span class="text-slate-300">|</span>
+                <span class="text-emerald-700 font-semibold">✨ 쾌변 연계 <strong>${item.goodCount}회</strong></span>
+              ` : ''}
               <span class="text-slate-300">|</span>
               <span class="text-slate-500 text-xs font-medium"><i class="fa-solid fa-clock-rotate-left text-amber-500 mr-0.5"></i> ${item.timingHint}</span>
             </div>
@@ -1399,7 +1401,7 @@
               <span class="text-xs px-2 py-0.5 rounded-full border font-medium ${item.reliability.badgeClass}">${item.reliability.text}</span>
             </div>
             <span class="text-xs font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-2.5 py-1 rounded-lg">
-              ✨ 총 ${item.goodCount}회 전회 쾌변
+              ✨ 식사 ${item.actualEatCount}회 (쾌변 배변 ${item.goodCount}회 연계)
             </span>
           </div>
         `).join('');
